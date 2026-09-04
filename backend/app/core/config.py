@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     database_url: str
     alembic_database_url: str
 
+    session_cookie_name: str = "myapp_session"
+    session_expire_hours: int = 8
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
