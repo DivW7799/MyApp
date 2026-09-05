@@ -90,7 +90,7 @@ export function LoginPage() {
           )}
 
           <button
-            className="login-submit"
+            className="btn btn-primary w-100"
             type="submit"
             disabled={isSubmitting}
           >

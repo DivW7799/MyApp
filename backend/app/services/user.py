@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.identifiers import normalize_username
 from app.models.user import User
 from app.schemas.user import AdminUserUpdateRequest
 
@@ -88,9 +89,11 @@ def update_user(
             )
 
     if request.username is not None:
+        username = normalize_username(request.username)
+
         existing_user = db.scalar(
             select(User).where(
-                User.username == request.username,
+                User.username == username,
                 User.id != target_user.id,
             )
         )
@@ -98,7 +101,7 @@ def update_user(
         if existing_user is not None:
             raise ValueError("Username already exists")
 
-        target_user.username = request.username
+        target_user.username = username
 
     if request.account_type is not None:
         target_user.account_type = request.account_type

@@ -9,6 +9,7 @@ from fastapi import (
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.identifiers import normalize_username
 from app.api.dependencies import get_current_user, get_db
 from app.core.config import get_settings
 from app.core.security import verify_password
@@ -43,7 +44,7 @@ def login(
 ):
     user = db.scalar(
         select(User).where(
-            User.username == request.username
+            User.username == normalize_username(request.username)
         )
     )
 

@@ -66,6 +66,40 @@ def test_login_success(
     assert me_response.json()["username"] == "test_login_user"
 
 
+def test_login_username_is_case_insensitive(
+    client,
+    db,
+):
+    user = User(
+        username="case_login_user",
+        password_hash=hash_password(
+            "VeryStrongPassword123!"
+        ),
+        account_type="U",
+        is_active=True,
+        must_change_password=False,
+    )
+
+    db.add(user)
+    db.commit()
+
+    response = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": "CASE_LOGIN_USER",
+            "password": "VeryStrongPassword123!",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["username"] == "case_login_user"
+
+    me_response = client.get("/api/v1/auth/me")
+
+    assert me_response.status_code == 200
+    assert me_response.json()["username"] == "case_login_user"
+
+
 def test_login_wrong_password(
     client,
     db,

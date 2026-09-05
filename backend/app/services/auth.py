@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.identifiers import normalize_username
 from app.core.security import hash_password, verify_password
 from app.models.user import User
 from app.schemas.auth import CreateUserRequest
@@ -14,15 +15,17 @@ def create_user(
     db: Session,
     request: CreateUserRequest,
 ) -> User:
+    username = normalize_username(request.username)
+
     existing_user = db.scalar(
-        select(User).where(User.username == request.username)
+        select(User).where(User.username == username)
     )
 
     if existing_user is not None:
         raise ValueError("Username already exists")
 
     user = User(
-        username=request.username,
+        username=username,
         password_hash=hash_password(request.password),
         account_type=request.account_type,
         is_active=True,

@@ -4,10 +4,14 @@ import { useAuth } from "./auth/auth-context/useAuth";
 import { LoginPage } from "./pages/login/LoginPage";
 
 function App() {
-  const { currentUser, isLoading } = useAuth();
+  const { currentUser, isLoading, logout } = useAuth();
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return (
+      <main className="container py-5">
+        <p>Loading...</p>
+      </main>
+    );
   }
 
   if (!currentUser) {
@@ -21,7 +25,32 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<h1>MyApp</h1>} />
+      <Route
+        path="/"
+        element={
+          <main className="container py-5">
+            <div className="d-flex align-items-center justify-content-between gap-3">
+              <div>
+                <h1 className="mb-1">MyApp</h1>
+                <p className="mb-0 text-secondary">
+                  Signed in as {currentUser.username}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-outline-danger"
+                onClick={() => {
+                  void logout();
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          </main>
+        }
+      />
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -3,6 +3,7 @@ from app.models.user import User
 from app.models.session import Session as UserSession
 from app.main import app
 
+from app.core.identifiers import normalize_username
 from fastapi.testclient import TestClient
 
 
@@ -19,7 +20,7 @@ def create_test_user(
     is_active: bool = True,
 ) -> User:
     user = User(
-        username=username,
+        username=normalize_username(username),
         password_hash=hash_password(PASSWORD),
         account_type=account_type,
         is_active=is_active,
@@ -132,6 +133,80 @@ def test_admin_created_account_requires_password_change(
     assert body["is_active"] is True
     assert body["must_change_password"] is True
     assert "password_hash" not in body
+
+
+def test_admin_created_username_is_normalized(
+    client,
+    db,
+):
+    admin = create_test_user(
+        db,
+        username="username_normalizer_admin",
+        account_type="A",
+    )
+
+    login(client, admin.username)
+
+    response = client.post(
+        "/api/v1/admin/users",
+        json={
+            "username": "MixedCaseNewUser",
+            "password": "TemporaryPassword123!",
+            "account_type": "U",
+        },
+    )
+
+    assert response.status_code == 201
+
+    body = response.json()
+
+    assert body["username"] == "mixedcasenewuser"
+
+    created_user = db.query(User).filter(
+        User.username == "mixedcasenewuser"
+    ).one()
+
+    assert created_user.username == "mixedcasenewuser"
+    
+
+def test_admin_cannot_create_case_variant_of_existing_username(
+    client,
+    db,
+):
+    admin = create_test_user(
+        db,
+        username="case_duplicate_admin",
+        account_type="A",
+    )
+
+    existing_user = create_test_user(
+        db,
+        username="CaseSensitiveUser",
+        account_type="U",
+    )
+
+    login(client, admin.username)
+
+    response = client.post(
+        "/api/v1/admin/users",
+        json={
+            "username": "casesensitiveuser",
+            "password": "TemporaryPassword123!",
+            "account_type": "U",
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Username already exists"
+
+    db.expire_all()
+
+    users = db.query(User).filter(
+        User.username == "casesensitiveuser"
+    ).all()
+
+    assert len(users) == 1
+    
 
 
 def test_admin_password_reset_invalidates_target_sessions(
@@ -433,3 +508,50 @@ def test_last_active_admin_cannot_be_demoted_and_deactivated_together(
     assert refreshed is not None
     assert refreshed.account_type == "A"
     assert refreshed.is_active is True
+    
+    
+def test_admin_cannot_rename_user_to_case_variant_of_existing_username(
+    client,
+    db,
+):
+    admin = create_test_user(
+        db,
+        username="rename_case_admin",
+        account_type="A",
+    )
+
+    existing_user = create_test_user(
+        db,
+        username="existing_username",
+        account_type="U",
+    )
+
+    target_user = create_test_user(
+        db,
+        username="rename_target_user",
+        account_type="U",
+    )
+
+    login(client, admin.username)
+
+    response = client.patch(
+        f"/api/v1/admin/users/{target_user.id}",
+        json={
+            "username": "EXISTING_USERNAME",
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Username already exists"
+
+    db.expire_all()
+
+    refreshed_target = db.get(User, target_user.id)
+
+    assert refreshed_target is not None
+    assert refreshed_target.username == "rename_target_user"
+
+    refreshed_existing = db.get(User, existing_user.id)
+
+    assert refreshed_existing is not None
+    assert refreshed_existing.username == "existing_username"
