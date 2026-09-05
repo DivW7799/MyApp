@@ -11,6 +11,7 @@ from app.services.session import (
     get_user_for_session,
     touch_session,
 )
+from app.core.errors import authentication_required
 
 
 def get_db() -> Generator[DbSession, None, None]:
@@ -33,26 +34,17 @@ def get_current_user(
     )
 
     if not session_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required",
-        )
+        raise authentication_required()
 
     session = get_session_by_token(db, session_token)
 
     if session is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required",
-        )
+        raise authentication_required()
 
     user = get_user_for_session(db, session)
 
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required",
-        )
+        raise authentication_required()
 
     touch_session(db, session)
 

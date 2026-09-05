@@ -8,11 +8,13 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     environment: str = "development"
 
-    database_url: str
-    alembic_database_url: str
-
     session_cookie_name: str = "myapp_session"
     session_expire_hours: int = 8
+    session_cookie_secure: bool = False
+    session_cookie_samesite: str = "lax"
+
+    database_url: str
+    alembic_database_url: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
