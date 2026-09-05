@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db, require_active_admin
 from app.models.user import User
-from app.schemas.auth import CreateUserRequest, UserResponse
+from app.schemas.auth import CreateUserRequest, UserResponse, AdminChangePasswordRequest
 from app.schemas.user import AdminUserDetail, AdminUserListItem, AdminUserUpdateRequest
-from app.services.auth import create_user
+from app.services.auth import create_user, admin_change_password
 from app.services.user import get_user_by_id, list_users, update_user
 
 
@@ -126,4 +126,29 @@ def update_user_account(
         account_type=user.account_type,
         is_active=user.is_active,
         must_change_password=user.must_change_password,
+    )
+
+
+@router.post(
+    "/users/{user_id}/password",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def change_user_password(
+    user_id: UUID,
+    request: AdminChangePasswordRequest,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_active_admin),
+):
+    user = get_user_by_id(db, user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not found",
+        )
+
+    admin_change_password(
+        db=db,
+        target_user=user,
+        new_password=request.new_password,
     )

@@ -88,12 +88,12 @@ def change_own_password(
 
 def admin_change_password(
     db: Session,
-    user: User,
+    target_user: User,
     new_password: str,
 ) -> None:
-    user.password_hash = hash_password(new_password)
-    user.must_change_password = True
+    target_user.password_hash = hash_password(new_password)
+    target_user.must_change_password = True
 
-    invalidate_user_sessions(db, user.id)
+    invalidate_user_sessions(db, target_user.id)
 
     db.commit()
