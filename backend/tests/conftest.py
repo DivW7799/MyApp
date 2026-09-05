@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import Session, sessionmaker
@@ -10,6 +12,8 @@ from app.main import app
 from app.models.session import Session as UserSession
 from app.models.user import User
 
+TEST_ENV_FILE = Path(__file__).with_name(".env.test")
+load_dotenv(TEST_ENV_FILE)
 
 TEST_DATABASE_URL = os.environ["TEST_DATABASE_URL"]
 TEST_DATABASE_ADMIN_URL = os.environ["TEST_DATABASE_ADMIN_URL"]
