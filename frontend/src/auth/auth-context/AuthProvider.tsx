@@ -59,6 +59,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const completePasswordChange = async (
+    newPassword: string,
+    confirmPassword: string,
+  ) => {
+    const user = await api.completePasswordChange({
+      new_password: newPassword,
+      confirm_password: confirmPassword,
+    });
+
+    setCurrentUser(user);
+
+    return user;
+  };
+
   const value: AuthContextValue = useMemo(
     () => ({
       currentUser,
@@ -66,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       refreshUser,
+      completePasswordChange,
     }),
     [currentUser, isLoading],
   );

@@ -1,0 +1,75 @@
+.app-shell {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.app-shell-header {
+  background: #ffffff;
+}
+
+.app-shell-bar {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 0;
+}
+
+.app-shell-navigation {
+  display: flex;
+  align-items: center;
+}
+
+.app-shell-navigation .nav-link {
+  padding: 0.5rem 0.75rem;
+  color: #475569;
+  text-decoration: none;
+}
+
+.app-shell-navigation .nav-link:hover {
+  color: #0f172a;
+}
+
+.app-shell-navigation .nav-link.active {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.app-shell-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-shell-main {
+  min-height: calc(100vh - 64px);
+}
+
+@media (max-width: 767.98px) {
+  .app-shell-bar {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  .app-shell-navigation {
+    order: 3;
+    width: 100%;
+  }
+
+  .app-shell-user {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .app-shell-bar {
+    align-items: flex-start;
+  }
+
+  .app-shell-user {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
