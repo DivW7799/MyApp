@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.admin import router as admin_router
 from app.api.auth import router as auth_router
 from app.core.config import get_settings
+from app.api.image_library import router as image_library_router
 
 
 settings = get_settings()
@@ -18,6 +19,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://192.168.0.100:5173"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
@@ -32,3 +34,4 @@ def health():
 
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(image_library_router)

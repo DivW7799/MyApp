@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.identifiers import normalize_username
-from app.api.dependencies import get_current_user, get_db
+from app.api.dependencies import get_current_user, get_db, require_password_change_complete
 from app.core.config import get_settings
 from app.core.security import verify_password
 from app.models.user import User
@@ -19,12 +19,14 @@ from app.schemas.auth import (
     CompletePasswordChangeRequest,
     LoginRequest,
     UserResponse,
+    UpdateOwnProfileRequest,
 )
 from app.services.auth import (
     change_own_password,
     complete_forced_password_change,
 )
 from app.services.session import create_session, delete_session
+from app.services.user import update_own_profile
 
 
 router = APIRouter(
@@ -125,6 +127,38 @@ def me(
         account_type=current_user.account_type,
         is_active=current_user.is_active,
         must_change_password=current_user.must_change_password,
+    )
+    
+    
+@router.patch(
+    "/me",
+    response_model=UserResponse,
+)
+def update_me(
+    request: UpdateOwnProfileRequest,
+    current_user: User = Depends(
+        require_password_change_complete
+    ),
+    db: Session = Depends(get_db),
+):
+    try:
+        user = update_own_profile(
+            db=db,
+            user=current_user,
+            new_username=request.username,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        account_type=user.account_type,
+        is_active=user.is_active,
+        must_change_password=user.must_change_password,
     )
 
 

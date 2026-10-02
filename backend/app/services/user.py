@@ -113,3 +113,37 @@ def update_user(
     db.refresh(target_user)
 
     return target_user
+
+
+def update_own_profile(
+    db: Session,
+    user: User,
+    new_username: str,
+) -> User:
+    username = normalize_username(new_username)
+
+    existing_user = db.scalar(
+        select(User).where(
+            User.username == username,
+            User.id != user.id,
+        )
+    )
+
+    if existing_user is not None:
+        raise ValueError("Username already exists")
+
+    locked_user = db.scalar(
+        select(User)
+        .where(User.id == user.id)
+        .with_for_update()
+    )
+
+    if locked_user is None:
+        raise ValueError("User not found")
+
+    locked_user.username = username
+
+    db.commit()
+    db.refresh(locked_user)
+
+    return locked_user

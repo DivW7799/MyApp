@@ -8,3 +8,4 @@ pwdlib[argon2]
 pytest
 httpx2
 python-dotenv
+python-multipart

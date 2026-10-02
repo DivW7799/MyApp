@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 
 
 class LoginRequest(BaseModel):
@@ -57,3 +57,11 @@ class CompletePasswordChangeRequest(BaseModel):
             raise ValueError("New passwords do not match")
 
         return self
+
+class UpdateOwnProfileRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    username: str = Field(
+        min_length=3,
+        max_length=100,
+    )

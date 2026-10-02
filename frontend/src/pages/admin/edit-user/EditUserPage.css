@@ -1,0 +1,138 @@
+.edit-user-page {
+  min-height: 100%;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgb(59 130 246 / 7%),
+      transparent 30%
+    ),
+    #f8fafc;
+}
+
+.edit-user-layout {
+  width: min(100%, 920px);
+  margin: 0 auto;
+}
+
+.edit-user-header {
+  margin-bottom: 28px;
+}
+
+.edit-user-eyebrow {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.edit-user-header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
+.edit-user-header p {
+  max-width: 700px;
+  margin: 11px 0 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.edit-user-header strong {
+  color: #334155;
+}
+
+.edit-user-card {
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgb(15 23 42 / 7%);
+}
+
+.edit-user-card-header {
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.edit-user-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.edit-user-avatar {
+  display: grid;
+  flex: 0 0 46px;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.edit-user-identity > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.edit-user-identity h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.edit-user-identity span {
+  overflow: hidden;
+  color: #94a3b8;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-user-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 60vh;
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.edit-user-error-card {
+  width: min(100%, 680px);
+  margin: 60px auto;
+  padding: 28px;
+  border: 1px solid #fecaca;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.edit-user-error-card h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.45rem;
+}
+
+.edit-user-error-card p {
+  margin: 10px 0 20px;
+  color: #b91c1c;
+}

@@ -555,3 +555,113 @@ def test_admin_cannot_rename_user_to_case_variant_of_existing_username(
 
     assert refreshed_existing is not None
     assert refreshed_existing.username == "existing_username"
+    
+    
+    
+    
+def test_user_can_update_own_username(
+    client,
+    db,
+):
+    user = create_test_user(
+        db,
+        username="self_edit_user",
+        account_type="U",
+    )
+
+    login(client, user.username)
+
+    response = client.patch(
+        "/api/v1/auth/me",
+        json={
+            "username": "RenamedSelfUser",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["username"] == "renamedselfuser"
+    assert body["account_type"] == "U"
+    assert body["is_active"] is True
+
+    db.expire_all()
+
+    refreshed = db.get(User, user.id)
+
+    assert refreshed is not None
+    assert refreshed.username == "renamedselfuser"
+    
+    
+def test_user_cannot_change_own_account_type_or_status(
+    client,
+    db,
+):
+    user = create_test_user(
+        db,
+        username="self_edit_restricted",
+        account_type="U",
+    )
+
+    login(client, user.username)
+
+    response = client.patch(
+        "/api/v1/auth/me",
+        json={
+            "username": "self_edit_restricted_new",
+            "account_type": "A",
+            "is_active": False,
+        },
+    )
+
+    assert response.status_code == 422
+
+    db.expire_all()
+
+    refreshed = db.get(User, user.id)
+
+    assert refreshed is not None
+    assert refreshed.username == "self_edit_restricted"
+    assert refreshed.account_type == "U"
+    assert refreshed.is_active is True
+    
+    
+def test_user_cannot_take_another_users_username(
+    client,
+    db,
+):
+    user = create_test_user(
+        db,
+        username="self_edit_owner",
+        account_type="U",
+    )
+
+    target = create_test_user(
+        db,
+        username="self_edit_target",
+        account_type="U",
+    )
+
+    login(client, user.username)
+
+    response = client.patch(
+        "/api/v1/auth/me",
+        json={
+            "username": target.username,
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Username already exists"
+
+    db.expire_all()
+
+    owner = db.get(User, user.id)
+    target_user = db.get(User, target.id)
+
+    assert owner is not None
+    assert target_user is not None
+
+    assert owner.username == "self_edit_owner"
+    assert target_user.username == "self_edit_target"

@@ -8,6 +8,7 @@ from app.core.config import get_settings
 from app.db.base import Base
 from app.models.session import Session
 from app.models.user import User
+from app.models.image_record import ImageRecord
 
 
 config = context.config
@@ -41,7 +42,14 @@ def run_migrations_online() -> None:
         {},
     )
 
-    configuration["sqlalchemy.url"] = settings.alembic_database_url
+    database_url = config.get_main_option(
+        "test_database_url"
+    )
+
+    if not database_url:
+        database_url = settings.alembic_database_url
+
+    configuration["sqlalchemy.url"] = database_url
 
     connectable = engine_from_config(
         configuration,
@@ -57,7 +65,7 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
-
+            
 
 if context.is_offline_mode():
     run_migrations_offline()
