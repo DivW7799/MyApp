@@ -5,6 +5,7 @@ from app.api.admin import router as admin_router
 from app.api.auth import router as auth_router
 from app.core.config import get_settings
 from app.api.image_library import router as image_library_router
+from app.api.table_forms import router as table_forms_router
 
 
 settings = get_settings()
@@ -35,3 +36,4 @@ def health():
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(image_library_router)
+app.include_router(table_forms_router)

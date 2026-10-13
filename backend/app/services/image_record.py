@@ -1,36 +1,167 @@
+from difflib import SequenceMatcher
 from pathlib import PurePath
 
-from sqlalchemy import select
+import re
+
+from sqlalchemy import extract, or_, select
 from sqlalchemy.orm import Session
+
+from datetime import date, datetime, time, timedelta, timezone
 
 from app.models.image_record import ImageRecord
 from app.models.user import User
 
 
-MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024
 
 ALLOWED_IMAGE_TYPES = {
     "image/jpeg",
     "image/png",
     "image/webp",
+    "image/bmp",
+    "image/tiff",
+    "image/heic",
+    "image/heif",
+    "image/avif",
 }
+
+MONTH_NAMES = {
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
+    "december": 12,
+}
+
+MONTH_ABBREVIATIONS = {
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "sept": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+}
+
+MONTH_FUZZY_THRESHOLD = 0.72
+YEAR_PATTERN = re.compile(r"\b(19\d{2}|20\d{2}|21\d{2})\b")
+
+
+def find_month_number(search_value: str) -> int | None:
+    normalized = search_value.strip().lower()
+
+    if not normalized:
+        return None
+
+    if normalized in MONTH_NAMES:
+        return MONTH_NAMES[normalized]
+
+    if normalized in MONTH_ABBREVIATIONS:
+        return MONTH_ABBREVIATIONS[normalized]
+
+    candidates = list(MONTH_NAMES.items())
+
+    best_month = None
+    best_ratio = 0.0
+
+    for month_name, month_number in candidates:
+        ratio = SequenceMatcher(
+            None,
+            normalized,
+            month_name,
+        ).ratio()
+
+        if ratio > best_ratio:
+            best_ratio = ratio
+            best_month = month_number
+
+    if best_ratio >= MONTH_FUZZY_THRESHOLD:
+        return best_month
+
+    return None
+
+
+def find_year(search_value: str) -> int | None:
+    match = YEAR_PATTERN.search(search_value)
+
+    if match is None:
+        return None
+
+    return int(match.group(1))
 
 
 def detect_image_type(data: bytes) -> str | None:
+    # JPEG
     if data.startswith(b"\xFF\xD8\xFF"):
         return "image/jpeg"
 
+    # PNG
     if data.startswith(
         b"\x89PNG\r\n\x1a\n"
     ):
         return "image/png"
 
+    # WebP
     if (
         len(data) >= 12
         and data[:4] == b"RIFF"
         and data[8:12] == b"WEBP"
     ):
         return "image/webp"
+
+    # BMP
+    if data.startswith(b"BM"):
+        return "image/bmp"
+
+    # TIFF - little endian
+    if data.startswith(b"II*\x00"):
+        return "image/tiff"
+
+    # TIFF - big endian
+    if data.startswith(b"MM\x00*"):
+        return "image/tiff"
+
+    # ISO Base Media File Format
+    # Used by HEIC/HEIF and AVIF.
+    if len(data) >= 12 and data[4:8] == b"ftyp":
+        brand = data[8:12]
+
+        heif_brands = {
+            b"heic",
+            b"heix",
+            b"hevc",
+            b"hevx",
+            b"heim",
+            b"heis",
+            b"hevm",
+            b"hevs",
+            b"mif1",
+            b"msf1",
+        }
+
+        avif_brands = {
+            b"avif",
+            b"avis",
+        }
+
+        if brand in heif_brands:
+            return "image/heic"
+
+        if brand in avif_brands:
+            return "image/avif"
 
     return None
 
@@ -70,19 +201,19 @@ def create_image_record(
 
     if len(image_data) > MAX_IMAGE_SIZE_BYTES:
         raise ValueError(
-            "Image must be 5 MB or smaller"
+            "Image must be 20 MB or smaller"
         )
 
     detected_type = detect_image_type(image_data)
 
     if detected_type is None:
         raise ValueError(
-            "Only JPEG, PNG, and WebP images are allowed"
+            "Supported image formats are JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, and AVIF"
         )
 
     if content_type not in ALLOWED_IMAGE_TYPES:
         raise ValueError(
-            "Only JPEG, PNG, and WebP images are allowed"
+            "Supported image formats are JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, and AVIF"
         )
 
     if content_type != detected_type:
@@ -109,21 +240,48 @@ def create_image_record(
 def list_image_records(
     db: Session,
     search: str | None = None,
+    description: str | None = None,
+    filename: str | None = None,
+    from_date: date | None = None,
+    to_date: date | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> list[ImageRecord]:
     query = select(ImageRecord)
 
+    def escape_like(value: str) -> str:
+        return (
+            value
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_")
+        )
+
     if search:
         search_value = search.strip()
 
         if search_value:
-            escaped = (
-                search_value
-                .replace("\\", "\\\\")
-                .replace("%", "\\%")
-                .replace("_", "\\_")
+            escaped = escape_like(search_value)
+            pattern = f"%{escaped}%"
+
+            query = query.where(
+                (
+                    ImageRecord.text_content.ilike(
+                        pattern,
+                        escape="\\",
+                    )
+                    | ImageRecord.original_filename.ilike(
+                        pattern,
+                        escape="\\",
+                    )
+                )
             )
+
+    if description:
+        description_value = description.strip()
+
+        if description_value:
+            escaped = escape_like(description_value)
 
             query = query.where(
                 ImageRecord.text_content.ilike(
@@ -131,6 +289,42 @@ def list_image_records(
                     escape="\\",
                 )
             )
+
+    if filename:
+        filename_value = filename.strip()
+
+        if filename_value:
+            escaped = escape_like(filename_value)
+
+            query = query.where(
+                ImageRecord.original_filename.ilike(
+                    f"%{escaped}%",
+                    escape="\\",
+                )
+            )
+
+    if from_date is not None:
+        from_datetime = datetime.combine(
+            from_date,
+            time.min,
+            tzinfo=timezone.utc,
+        )
+        
+        query = query.where(
+            ImageRecord.created_at >= from_date
+        )
+
+    if to_date is not None:
+        to_datetime = datetime.combine(
+            to_date + timedelta(days=1),
+            time.min,
+            tzinfo=timezone.utc,
+        )
+        
+        query = query.where(
+            ImageRecord.created_at
+            < to_date.fromordinal(to_date.toordinal() + 1)
+        )
 
     query = (
         query

@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://192.168.0.100:8000";
+// const API_BASE_URL = "http://localhost:8000";
+// const API_BASE_URL = "http://192.168.0.100:8000";
+const API_BASE_URL = `http://${window.location.hostname}:8000`;
 
 type ApiValidationError = {
   type?: string;
@@ -42,10 +44,7 @@ async function parseApiError(response: Response): Promise<string> {
   return message;
 }
 
-async function request<T>(
-  path: string,
-  options: RequestInit = {},
-): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
 
   if (!(options.body instanceof FormData)) {
@@ -161,6 +160,14 @@ export type ImageRecord = {
   created_at: string;
 };
 
+export type ImageSearchFilters = {
+  search?: string;
+  description?: string;
+  filename?: string;
+  fromDate?: string;
+  toDate?: string;
+};
+
 export const api = {
   login(data: LoginRequest) {
     return request<CurrentUser>("/api/v1/auth/login", {
@@ -180,23 +187,17 @@ export const api = {
   },
 
   completePasswordChange(data: CompletePasswordChangeRequest) {
-    return request<CurrentUser>(
-      "/api/v1/auth/complete-password-change",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    return request<CurrentUser>("/api/v1/auth/complete-password-change", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   },
 
   changeOwnPassword(data: ChangeOwnPasswordRequest) {
-    return request<CurrentUser>(
-      "/api/v1/auth/change-password",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    return request<CurrentUser>("/api/v1/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   },
 
   createUser(data: CreateUserRequest) {
@@ -211,25 +212,17 @@ export const api = {
   },
 
   getUser(userId: string) {
-    return request<AdminUser>(
-      `/api/v1/admin/users/${userId}`,
-    );
+    return request<AdminUser>(`/api/v1/admin/users/${userId}`);
   },
 
   updateUser(userId: string, data: UpdateUserRequest) {
-    return request<AdminUser>(
-      `/api/v1/admin/users/${userId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      },
-    );
+    return request<AdminUser>(`/api/v1/admin/users/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   },
 
-  resetUserPassword(
-    userId: string,
-    data: ResetUserPasswordRequest,
-  ) {
+  resetUserPassword(userId: string, data: ResetUserPasswordRequest) {
     return request<ResetUserPasswordResponse>(
       `/api/v1/admin/users/${userId}/password`,
       {
@@ -246,11 +239,27 @@ export const api = {
     });
   },
 
-  getImageRecords(search?: string) {
+  getImageRecords(filters: ImageSearchFilters = {}) {
     const params = new URLSearchParams();
 
-    if (search?.trim()) {
-      params.set("search", search.trim());
+    if (filters.search?.trim()) {
+      params.set("search", filters.search.trim());
+    }
+
+    if (filters.description?.trim()) {
+      params.set("description", filters.description.trim());
+    }
+
+    if (filters.filename?.trim()) {
+      params.set("filename", filters.filename.trim());
+    }
+
+    if (filters.fromDate) {
+      params.set("from_date", filters.fromDate);
+    }
+
+    if (filters.toDate) {
+      params.set("to_date", filters.toDate);
     }
 
     const query = params.toString();
@@ -266,18 +275,13 @@ export const api = {
     formData.append("text", text);
     formData.append("image", image);
 
-    return request<ImageRecord>(
-      "/api/v1/image-library",
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+    return request<ImageRecord>("/api/v1/image-library", {
+      method: "POST",
+      body: formData,
+    });
   },
 
   getImageRecordImage(recordId: string) {
-    return requestBlob(
-      `/api/v1/image-library/${recordId}/image`,
-    );
+    return requestBlob(`/api/v1/image-library/${recordId}/image`);
   },
 };

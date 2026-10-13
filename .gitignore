@@ -28,3 +28,8 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local OCR models, generated output and test images
+/ocr-engine/models/
+/ocr-engine/output/
+/ocr-engine/test-data/

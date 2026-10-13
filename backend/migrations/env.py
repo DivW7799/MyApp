@@ -10,6 +10,8 @@ from app.models.session import Session
 from app.models.user import User
 from app.models.image_record import ImageRecord
 
+from app.models.table_form import TableFormNeedleRow, TableFormRecord
+
 
 config = context.config
 

@@ -37,6 +37,8 @@ function App() {
 
         <Route path="/account" element={<EditUserPage />} />
 
+        <Route path="/images" element={<ImageLibraryPage />} />
+
         <Route
           path="/admin/users/create"
           element={
@@ -87,8 +89,6 @@ function App() {
           )
         }
       />
-
-      <Route path="/images" element={<ImageLibraryPage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

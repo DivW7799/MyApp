@@ -11,9 +11,11 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.api.dependencies import get_db
 from app.main import app
+
 from app.models.image_record import ImageRecord
 from app.models.session import Session as UserSession
 from app.models.user import User
+from app.models.table_form import TableFormNeedleRow, TableFormRecord
 
 
 TEST_ENV_FILE = Path(__file__).with_name(".env.test")
@@ -80,6 +82,8 @@ def clean_database():
     db = TestingAdminSessionLocal()
 
     try:
+        db.execute(delete(TableFormNeedleRow))
+        db.execute(delete(TableFormRecord))
         db.execute(delete(ImageRecord))
         db.execute(delete(UserSession))
         db.execute(delete(User))

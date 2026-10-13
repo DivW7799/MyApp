@@ -1,4 +1,5 @@
 from uuid import UUID
+from datetime import date
 
 from fastapi import (
     APIRouter,
@@ -81,6 +82,20 @@ def get_images(
         default=None,
         max_length=100,
     ),
+    description: str | None = Query(
+        default=None,
+        max_length=100,
+    ),
+    filename: str | None = Query(
+        default=None,
+        max_length=255,
+    ),
+    from_date: date | None = Query(
+        default=None,
+    ),
+    to_date: date | None = Query(
+        default=None,
+    ),
     limit: int = Query(
         default=50,
         ge=1,
@@ -95,9 +110,23 @@ def get_images(
         require_password_change_complete
     ),
 ):
+    if (
+        from_date is not None
+        and to_date is not None
+        and from_date > to_date
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="From date cannot be after to date",
+        )
+
     records = list_image_records(
         db=db,
         search=search,
+        description=description,
+        filename=filename,
+        from_date=from_date,
+        to_date=to_date,
         limit=limit,
         offset=offset,
     )
