@@ -6,74 +6,48 @@ import {
   IMAGE_FORMAT_LABEL,
   isAllowedImageFile,
 } from "../../constants/image-formats";
-import {
-  MAX_IMAGE_SIZE_BYTES,
-  MAX_IMAGE_SIZE_LABEL,
-} from "../../constants/upload-limits";
+import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_LABEL } from "../../constants/upload-limits";
 import "./ImageOcrReader.css";
 
-type CardHeader = {
-  name: string;
-  description: string;
-  stitches: string;
-  d_no: string;
-  piece: string;
-  date: string;
-};
-
-type ParsedCard = {
-  header: CardHeader;
-  needle_columns: Array<{ needle: number; values: string[] }>;
-  unassigned_text?: Array<{ text: string; confidence?: number; reason?: string }>;
-  needs_manual_review?: boolean;
-};
-
+type PrintedLabel = { text: string; confidence: number | null; error?: string };
 type OcrResponse = {
   success?: boolean;
   text_count?: number;
-  text?: Array<{ text: string; confidence?: number | null; box?: unknown }>;
+  printed_labels?: Record<string, PrintedLabel>;
   alignment?: { applied?: boolean; confidence?: number; message?: string };
-  parsed_card?: ParsedCard | null;
   error?: string;
 };
 
-const EMPTY_HEADER: CardHeader = {
-  name: "", description: "", stitches: "", d_no: "", piece: "", date: "",
-};
-
-function emptyColumns() {
-  return Array.from({ length: 6 }, (_, index) => ({
-    needle: index + 1,
-    values: Array.from({ length: 6 }, () => ""),
-  }));
-}
+const LABEL_NAMES: Array<[string, string]> = [
+  ["stitches_label", "STICHES:"],
+  ["d_no_label", "D. No.:"],
+  ["piece_label", "Piece"],
+  ["date_label", "Date:"],
+  ["needle_1_label", "Nedal-1 label"],
+  ["needle_2_label", "Nedal-2 label"],
+  ["needle_3_label", "Nedal-3 label"],
+  ["needle_4_label", "Nedal-4 label"],
+  ["needle_5_label", "Nedal-5 label"],
+  ["needle_6_label", "Nedal-6 label"],
+];
 
 export function ImageOcrReader() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [resultText, setResultText] = useState("");
-  const [ocrResult, setOcrResult] = useState<OcrResponse | null>(null);
-  const [header, setHeader] = useState<CardHeader>(EMPTY_HEADER);
-  const [columns, setColumns] = useState(emptyColumns);
+  const [result, setResult] = useState<OcrResponse | null>(null);
+  const [rawResult, setRawResult] = useState("");
   const [isReading, setIsReading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function resetResult() {
-    setResultText("");
-    setOcrResult(null);
-    setHeader(EMPTY_HEADER);
-    setColumns(emptyColumns());
-  }
-
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
     setSelectedFile(null);
-    resetResult();
+    setResult(null);
+    setRawResult("");
     setErrorMessage("");
     setStatusMessage("");
     if (!file) return;
-
     if (!isAllowedImageFile(file)) {
       event.target.value = "";
       setErrorMessage("Supported image formats are JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, and AVIF.");
@@ -94,22 +68,14 @@ export function ImageOcrReader() {
     }
     setIsReading(true);
     setErrorMessage("");
-    setStatusMessage("Processing image with local PaddleOCR...");
-    resetResult();
-
+    setStatusMessage("Scanning the fixed printed-label areas only...");
+    setResult(null);
+    setRawResult("");
     try {
-      const result = (await api.readImageText(selectedFile)) as OcrResponse;
-      setOcrResult(result);
-      setResultText(JSON.stringify(result, null, 2));
-      if (result.parsed_card) {
-        setHeader({ ...EMPTY_HEADER, ...result.parsed_card.header });
-        const incoming = result.parsed_card.needle_columns ?? [];
-        setColumns(Array.from({ length: 6 }, (_, index) => ({
-          needle: index + 1,
-          values: Array.from({ length: 6 }, (_, row) => incoming[index]?.values?.[row] ?? ""),
-        })));
-      }
-      setStatusMessage("OCR completed. Review and correct the editable fields before using them.");
+      const response = (await api.readImageText(selectedFile)) as OcrResponse;
+      setResult(response);
+      setRawResult(JSON.stringify(response, null, 2));
+      setStatusMessage("Label scan complete. OCR text is shown exactly as recognized; no spelling correction is applied.");
     } catch (error: unknown) {
       setErrorMessage(error instanceof ApiError ? error.message : "Unable to process this image. Please try again.");
       setStatusMessage("");
@@ -120,37 +86,11 @@ export function ImageOcrReader() {
 
   function handleClear() {
     setSelectedFile(null);
-    resetResult();
+    setResult(null);
+    setRawResult("");
     setErrorMessage("");
     setStatusMessage("");
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }
-
-  function updateHeader(field: keyof CardHeader, value: string) {
-    setHeader((current) => ({ ...current, [field]: value }));
-  }
-
-  function updateCell(columnIndex: number, rowIndex: number, value: string) {
-    setColumns((current) => current.map((column, index) => index !== columnIndex ? column : ({
-      ...column,
-      values: column.values.map((cell, row) => row === rowIndex ? value : cell),
-    })));
-  }
-
-  function copyEditedCard() {
-    const exportData = {
-      header,
-      needle_columns: columns,
-      source_file: selectedFile?.name ?? null,
-      needs_manual_review: true,
-    };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "edited-embroidery-card.json";
-    link.click();
-    URL.revokeObjectURL(url);
   }
 
   return (
@@ -158,8 +98,8 @@ export function ImageOcrReader() {
       <div className="image-ocr__header">
         <div>
           <p className="image-ocr__eyebrow">LOCAL OCR</p>
-          <h2>Read embroidery card</h2>
-          <p>Extract the form locally, then review every field. Hidden or uncertain values are not guessed.</p>
+          <h2>Scan printed card labels</h2>
+          <p>Scans the fixed printed labels only. Handwriting is not corrected or assigned to fields.</p>
         </div>
       </div>
       <div className="image-ocr__body">
@@ -169,7 +109,6 @@ export function ImageOcrReader() {
             accept={IMAGE_ACCEPT_ATTRIBUTE} onChange={handleFileChange} disabled={isReading} />
           <p className="image-ocr__hint">{IMAGE_FORMAT_LABEL}. Maximum {MAX_IMAGE_SIZE_LABEL}.</p>
         </div>
-
         {selectedFile && <div className="image-ocr__selected">
           <div className="image-ocr__selected-info">
             <span className="image-ocr__selected-name">{selectedFile.name}</span>
@@ -177,69 +116,37 @@ export function ImageOcrReader() {
           </div>
           {!isReading && <button type="button" className="image-ocr__remove" onClick={handleClear}>Remove</button>}
         </div>}
-
         {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
         {statusMessage && <div className="image-ocr__status" role="status">{statusMessage}</div>}
-
         <div className="image-ocr__actions">
           <button type="button" className="btn btn-primary" disabled={!selectedFile || isReading} onClick={handleReadText}>
-            {isReading ? "Processing..." : "Read text"}
+            {isReading ? "Scanning..." : "Scan printed labels"}
           </button>
         </div>
-
-        {ocrResult && <div className="image-ocr__editor">
+        {result && <div className="image-ocr__editor">
           <div className="image-ocr__result-header">
             <div>
-              <h3>Editable card fields</h3>
-              <p>{ocrResult.text_count ?? 0} text detections · {ocrResult.alignment?.applied ? "perspective correction applied" : "original image used"} · please verify all values</p>
+              <h3>Printed-label scan</h3>
+              <p>{result.alignment?.applied ? "Perspective correction applied" : "Original image used"} · raw OCR text, no spelling correction</p>
             </div>
-            <button type="button" className="image-ocr__clear-text" onClick={copyEditedCard}>Export edited JSON</button>
           </div>
-
-          <div className="image-ocr__header-fields">
-            {([
-              ["name", "Name / header"],
-              ["description", "Description"],
-              ["stitches", "Stitches"],
-              ["d_no", "D. No."],
-              ["piece", "Piece"],
-              ["date", "Date"],
-            ] as Array<[keyof CardHeader, string]>).map(([field, label]) => (
-              <label className="image-ocr__edit-field" key={field}>
-                <span>{label}</span>
-                <input className="form-control" value={header[field]} onChange={(event) => updateHeader(field, event.target.value)} />
-              </label>
-            ))}
+          <div className="image-ocr__label-results">
+            {LABEL_NAMES.map(([key, title]) => {
+              const item = result.printed_labels?.[key];
+              return <div className="image-ocr__label-result" key={key}>
+                <span className="image-ocr__label-title">{title}</span>
+                <strong>{item?.text || "No text detected"}</strong>
+                <small>{typeof item?.confidence === "number" ? `Confidence: ${item.confidence.toFixed(2)}` : item?.error ?? "No confidence score"}</small>
+              </div>;
+            })}
           </div>
-
-          <h3 className="image-ocr__grid-title">Needle values — 6 rows × 6 columns</h3>
-          <div className="image-ocr__grid-wrap">
-            <table className="image-ocr__grid">
-              <thead><tr><th>Row</th>{columns.map((column) => <th key={column.needle}>Needle {column.needle}</th>)}</tr></thead>
-              <tbody>{Array.from({ length: 6 }, (_, row) => <tr key={row}>
-                <th>{row + 1}</th>
-                {columns.map((column, col) => <td key={column.needle}>
-                  <input aria-label={`Row ${row + 1}, Needle ${column.needle}`} value={column.values[row] ?? ""}
-                    onChange={(event) => updateCell(col, row, event.target.value)} />
-                </td>)}
-              </tr>)}</tbody>
-            </table>
-          </div>
-
-          {Boolean(ocrResult.parsed_card?.unassigned_text?.length) && <details className="image-ocr__unassigned">
-            <summary>Unassigned OCR detections ({ocrResult.parsed_card?.unassigned_text?.length ?? 0})</summary>
-            <ul>{ocrResult.parsed_card?.unassigned_text?.map((item, index) => <li key={index}>
-              {item.text} {typeof item.confidence === "number" ? `(confidence ${item.confidence.toFixed(2)})` : ""} — {item.reason ?? "review"}
-            </li>)}</ul>
-          </details>}
         </div>}
-
         <div className="image-ocr__result">
           <details>
             <summary>Raw OCR response (diagnostics)</summary>
-            <pre className={["image-ocr__text-box", resultText ? "image-ocr__text-box--has-text" : ""].filter(Boolean).join(" ")}
+            <pre className={["image-ocr__text-box", rawResult ? "image-ocr__text-box--has-text" : ""].filter(Boolean).join(" ")}
               aria-live="polite" style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
-              {resultText || "The OCR result will appear here."}
+              {rawResult || "The OCR result will appear here."}
             </pre>
           </details>
         </div>
