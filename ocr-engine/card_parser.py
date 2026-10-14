@@ -37,6 +37,15 @@ def _field_value(text: str, label_pattern: str) -> str:
     return clean_text(text[match.end():].strip(" :.-"))
 
 
+def _extract_date(text: str) -> str:
+    """Accept common OCR losses of a date separator, e.g. 12/912026."""
+    match = re.search(r"(?<!\\d)(\\d{1,2})[./-](\\d{1,2})[./-]?(\\d{4}|\\d{2})(?!\\d)", text)
+    if not match:
+        return ""
+    day_or_month, month_or_day, year = match.groups()
+    return f"{day_or_month}/{month_or_day}/{year}"
+
+
 def parse_card(ocr_items: list[dict[str, Any]], image_size: tuple[int, int] = (1200, 1600)) -> dict[str, Any]:
     """
     Arrange OCR detections into editable form fields.
