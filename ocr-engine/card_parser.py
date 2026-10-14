@@ -39,7 +39,7 @@ def _field_value(text: str, label_pattern: str) -> str:
 
 def _extract_date(text: str) -> str:
     """Accept common OCR losses of a date separator, e.g. 12/912026."""
-    match = re.search(r"(?<!\\d)(\\d{1,2})[./-](\\d{1,2})[./-]?(\\d{4}|\\d{2})(?!\\d)", text)
+    match = re.search(r"(?<!\d)(\d{1,2})[./-](\d{1,2})[./-]?(\d{4}|\d{2})(?!\d)", text)
     if not match:
         return ""
     day_or_month, month_or_day, year = match.groups()
