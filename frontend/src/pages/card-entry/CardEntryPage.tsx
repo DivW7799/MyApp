@@ -98,13 +98,13 @@ export function CardEntryPage() {
           </label>
           <div className="physical-card__rule" />
           <div className="physical-card__stitches">
-            <strong>STICHES :</strong>
+            <strong>STITCHES:</strong>
             <input aria-label="Stitches description" value={card.description} onChange={(event) => updateField("description", event.target.value)} placeholder="Description / work" />
           </div>
           <div className="physical-card__metadata">
             <label><strong>D. No.:</strong><input value={card.dNo} onChange={(event) => updateField("dNo", event.target.value)} /></label>
-            <label><strong>Piece</strong><input value={card.piece} onChange={(event) => updateField("piece", event.target.value)} /></label>
-            <label><strong>Date :</strong><input type="date" value={card.date} onChange={(event) => updateField("date", event.target.value)} /></label>
+            <label><strong>Piece:</strong><input value={card.piece} onChange={(event) => updateField("piece", event.target.value)} /></label>
+            <label><strong>Date:</strong><input type="date" value={card.date} onChange={(event) => updateField("date", event.target.value)} /></label>
           </div>
         </div>
 
