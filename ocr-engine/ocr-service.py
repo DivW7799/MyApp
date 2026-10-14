@@ -97,17 +97,20 @@ def extract_text(serialized_results: list[dict]) -> list[dict]:
 def extract_printed_labels(ocr, image: cv2.typing.MatLike) -> dict:
     """Read fixed printed-label zones only. Preserve raw OCR text; never spell-correct."""
     height, width = image.shape[:2]
+    # Normalized to the rectified card template (1200 x 1600). The grid has
+    # seven columns: Colors + Nedal-1..Nedal-6. Never infer columns from OCR.
     zones = {
-        "stitches_label": (90, 365, 330, 430),
-        "d_no_label": (90, 480, 250, 550),
-        "piece_label": (450, 480, 545, 550),
-        "date_label": (745, 485, 870, 555),
-        "needle_1_label": (245, 570, 395, 635),
-        "needle_2_label": (390, 570, 540, 635),
-        "needle_3_label": (535, 570, 680, 635),
-        "needle_4_label": (675, 570, 825, 635),
-        "needle_5_label": (820, 570, 970, 635),
-        "needle_6_label": (965, 570, 1120, 635),
+        "stitches_label": (105, 350, 340, 425),
+        "d_no_label": (95, 455, 255, 525),
+        "piece_label": (430, 455, 555, 525),
+        "date_label": (690, 455, 835, 525),
+        "colors_label": (165, 535, 285, 615),
+        "needle_1_label": (285, 535, 410, 615),
+        "needle_2_label": (410, 535, 535, 615),
+        "needle_3_label": (535, 535, 660, 615),
+        "needle_4_label": (660, 535, 785, 615),
+        "needle_5_label": (785, 535, 910, 615),
+        "needle_6_label": (910, 535, 1040, 615),
     }
     labels = {}
     with tempfile.TemporaryDirectory(prefix="myapp_printed_labels_") as temp_dir:
