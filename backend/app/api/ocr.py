@@ -92,7 +92,7 @@ async def read_image_text(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
-        
+
     try:
         with tempfile.TemporaryDirectory(prefix="myapp-ocr-") as temp_name:
             temp_dir = Path(temp_name)
@@ -110,30 +110,6 @@ async def read_image_text(
                     detail="The local OCR engine is not configured.",
                 )
 
-            
-            try:
-                process = await asyncio.to_thread(
-                    subprocess.run,
-                    [
-                        str(OCR_PYTHON),
-                        str(OCR_SCRIPT),
-                        "--input",
-                        str(input_path),
-                        "--output",
-                        str(output_path),
-                    ],
-                    cwd=str(OCR_ROOT),
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    timeout=OCR_TIMEOUT_SECONDS,
-                    check=False,
-                )
-            except subprocess.TimeoutExpired as exc:
-                raise HTTPException(
-                    status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-                    detail="OCR processing timed out. Try a smaller image.",
-                ) from exc
 
             try:
                 process = await asyncio.to_thread(
@@ -168,15 +144,6 @@ async def read_image_text(
                     detail="The OCR engine could not process this image.",
                 )
 
-            if process.returncode != 0:
-                diagnostic = (process.stderr or "")[-2000:]
-                print(f"Local OCR process failed: {diagnostic}")
-
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="The OCR engine could not process this image.",
-                )
-
             if not output_path.is_file():
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -194,7 +161,7 @@ async def read_image_text(
                 ) from exc
 
             return result
-        
+
     except HTTPException:
         raise
     except Exception:
