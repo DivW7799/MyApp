@@ -78,11 +78,9 @@ def parse_card(ocr_items: list[dict[str, Any]], image_size: tuple[int, int] = (1
         low = text.lower()
         norm = _normalise_label(text)
 
-        # Label detections sometimes merge with the handwritten value.
+        # This stage is intentionally limited to printed form labels. Do not
+        # normalize handwriting or assign handwritten values to fields.
         if "stich" in low or "stitch" in low:
-            value = _field_value(text, r"stitch(?:es)?")
-            if value:
-                header["stitches"] = value
             continue
         if "date" in low or re.search(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", text):
             date = re.search(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", text)
@@ -92,15 +90,8 @@ def parse_card(ocr_items: list[dict[str, Any]], image_size: tuple[int, int] = (1
             if "date" in low:
                 continue
         if "dno" in norm or norm.startswith("dno"):
-            value = _field_value(text, r"d\s*\.?\s*no\s*\.?\s*:")
-            if value:
-                header["d_no"] = value
             continue
         if "piece" in low:
-            value = _field_value(text, r"piece")
-            digits = re.search(r"\d+", value or text)
-            if digits:
-                header["piece"] = digits.group(0)
             continue
 
         # OCR commonly reads the printed "Needle" as "Nedal".
@@ -108,6 +99,10 @@ def parse_card(ocr_items: list[dict[str, Any]], image_size: tuple[int, int] = (1
         if needle:
             needle_headings.append({"needle": int(needle.group(1)), "x": x, "y": y})
             continue
+
+        # Non-label text is deliberately ignored in this printed-label-only pass.
+        # Keep only printed labels and the detected needle headings in the result.
+        continue
 
         # Typical form regions. Header is arranged spatially to tolerate reading order changes.
         if ny < 0.27:
