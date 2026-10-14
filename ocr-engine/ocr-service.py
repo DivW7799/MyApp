@@ -93,6 +93,53 @@ def extract_text(serialized_results: list[dict]) -> list[dict]:
     return recognized_text
 
 
+
+def extract_printed_labels(ocr, image: cv2.typing.MatLike) -> dict:
+    """Read fixed printed-label zones only. Preserve raw OCR text; never spell-correct."""
+    height, width = image.shape[:2]
+    zones = {
+        "stitches_label": (90, 365, 330, 430),
+        "d_no_label": (90, 480, 250, 550),
+        "piece_label": (450, 480, 545, 550),
+        "date_label": (745, 485, 870, 555),
+        "needle_1_label": (245, 570, 395, 635),
+        "needle_2_label": (390, 570, 540, 635),
+        "needle_3_label": (535, 570, 680, 635),
+        "needle_4_label": (675, 570, 825, 635),
+        "needle_5_label": (820, 570, 970, 635),
+        "needle_6_label": (965, 570, 1120, 635),
+    }
+    labels = {}
+    with tempfile.TemporaryDirectory(prefix="myapp_printed_labels_") as temp_dir:
+        for field, (x1, y1, x2, y2) in zones.items():
+            sx, sy = width / 1200.0, height / 1600.0
+            x1, x2 = int(x1 * sx), int(x2 * sx)
+            y1, y2 = int(y1 * sy), int(y2 * sy)
+            crop = image[max(0, y1):min(height, y2), max(0, x1):min(width, x2)]
+            if crop.size == 0:
+                labels[field] = {"text": "", "confidence": None, "detections": []}
+                continue
+            gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) if len(crop.shape) == 3 else crop
+            enlarged = cv2.resize(gray, None, fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
+            crop_path = Path(temp_dir) / (field + ".png")
+            if not cv2.imwrite(str(crop_path), enlarged):
+                labels[field] = {"text": "", "confidence": None, "detections": []}
+                continue
+            try:
+                predictions = ocr.predict(input=str(crop_path))
+                items = extract_text([serialize_result(result) for result in predictions])
+                scores = [item["confidence"] for item in items if item["confidence"] is not None]
+                labels[field] = {
+                    "text": " ".join(item["text"] for item in items).strip(),
+                    "confidence": round(sum(scores) / len(scores), 4) if scores else None,
+                    "detections": items,
+                }
+            except Exception as exc:
+                labels[field] = {"text": "", "confidence": None, "detections": [],
+                                 "error": type(exc).__name__ + ": " + str(exc)}
+    return labels
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run local PaddleOCR with optional card alignment."
@@ -201,12 +248,13 @@ def main() -> None:
                     ]
 
                     recognized_text = extract_text(serialized_results)
+                    printed_labels = extract_printed_labels(ocr, alignment.image)
 
                     output = {
                         "results": serialized_results,
                         "text": recognized_text,
                         "text_count": len(recognized_text),
-                        "parsed_card": parse_card(recognized_text),
+                        "printed_labels": printed_labels,
                         "success": True,
                         "alignment": alignment_info,
                     }
@@ -245,12 +293,14 @@ def main() -> None:
             ]
 
             recognized_text = extract_text(serialized_results)
+            original_image = cv2.imread(str(args.input))
+            printed_labels = extract_printed_labels(ocr, original_image) if original_image is not None else {}
 
             output = {
                 "results": serialized_results,
                 "text": recognized_text,
                 "text_count": len(recognized_text),
-                "parsed_card": parse_card(recognized_text),
+                "printed_labels": printed_labels,
                 "success": True,
                 "alignment": alignment_info,
             }
