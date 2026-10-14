@@ -60,6 +60,15 @@ function HomeIcon() {
   );
 }
 
+function CardIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="3" width="16" height="18" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M7 8h10M7 12h2m2 0h2m2 0h2M7 16h2m2 0h2m2 0h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ImageIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none">
@@ -381,6 +390,14 @@ export function AppShell() {
             onNavigate={closeMobileNavigation}
           >
             <ImageIcon />
+          </NavItem>
+
+          <NavItem
+            to="/cards/new"
+            label="Enter card"
+            onNavigate={closeMobileNavigation}
+          >
+            <CardIcon />
           </NavItem>
 
           {currentUser?.account_type === "A" && (
