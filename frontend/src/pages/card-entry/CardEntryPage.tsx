@@ -3,7 +3,7 @@ import { useState } from "react";
 import "./CardEntryPage.css";
 
 const ROWS = 6;
-const COLUMNS = ["Colors", "Nedal-1", "Nedal-2", "Nedal-3", "Nedal-4", "Nedal-5", "Nedal-6"] as const;
+const COLUMNS = ["Colors", "Needle-1", "Needle-2", "Needle-3", "Needle-4", "Needle-5", "Needle-6"] as const;
 
 type CardDetails = {
   name: string;
