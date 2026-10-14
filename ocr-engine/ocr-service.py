@@ -10,6 +10,7 @@ import cv2
 from paddleocr import PaddleOCR
 
 from card_alignment import align_card
+from card_parser import parse_card
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_ROOT = BASE_DIR / "models"
@@ -111,6 +112,7 @@ def main() -> None:
         "results": [],
         "text": [],
         "text_count": 0,
+        "parsed_card": None,
         "success": False,
         "alignment": {
             "attempted": False,
@@ -204,6 +206,7 @@ def main() -> None:
                         "results": serialized_results,
                         "text": recognized_text,
                         "text_count": len(recognized_text),
+                        "parsed_card": parse_card(recognized_text),
                         "success": True,
                         "alignment": alignment_info,
                     }
@@ -247,6 +250,7 @@ def main() -> None:
                 "results": serialized_results,
                 "text": recognized_text,
                 "text_count": len(recognized_text),
+                "parsed_card": parse_card(recognized_text),
                 "success": True,
                 "alignment": alignment_info,
             }
@@ -263,6 +267,7 @@ def main() -> None:
             "results": [],
             "text": [],
             "text_count": 0,
+            "parsed_card": None,
             "success": False,
             "alignment": output.get("alignment"),
             "error": f"{type(exc).__name__}: {exc}",
