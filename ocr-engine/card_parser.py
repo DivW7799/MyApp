@@ -1,8 +1,6 @@
-
 from __future__ import annotations
 
 import re
-from datetime import datetime
 from typing import Any
 
 
@@ -11,20 +9,11 @@ ROWS_PER_NEEDLE = 6
 
 
 def box_center(box: Any) -> tuple[float, float] | None:
-    """Return the center point of a PaddleOCR polygon."""
     try:
-        points = [
-            (float(point[0]), float(point[1]))
-            for point in box
-        ]
-
+        points = [(float(point[0]), float(point[1])) for point in box]
         if not points:
             return None
-
-        return (
-            sum(point[0] for point in points) / len(points),
-            sum(point[1] for point in points) / len(points),
-        )
+        return sum(p[0] for p in points) / len(points), sum(p[1] for p in points) / len(points)
     except (TypeError, ValueError, IndexError):
         return None
 
@@ -34,163 +23,151 @@ def clean_text(value: str) -> str:
 
 
 def empty_grid() -> list[list[str]]:
-    """Six rows, each containing six needle-column values."""
-    return [
-        ["" for _ in range(NEEDLE_COUNT)]
-        for _ in range(ROWS_PER_NEEDLE)
-    ]
+    return [["" for _ in range(NEEDLE_COUNT)] for _ in range(ROWS_PER_NEEDLE)]
 
 
-def parse_card(ocr_items: list[dict[str, Any]]) -> dict[str, Any]:
+def _normalise_label(text: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", text.lower())
+
+
+def _field_value(text: str, label_pattern: str) -> str:
+    match = re.search(label_pattern, text, flags=re.IGNORECASE)
+    if not match:
+        return ""
+    return clean_text(text[match.end():].strip(" :.-"))
+
+
+def parse_card(ocr_items: list[dict[str, Any]], image_size: tuple[int, int] = (1200, 1600)) -> dict[str, Any]:
     """
-    Convert OCR text boxes into editable card fields.
+    Arrange OCR detections into editable form fields.
 
-    Grid values are assigned by normalized position. Unreadable or
-    obscured cells remain blank instead of being guessed.
+    OCR coordinates are x/y pixels. image_size is (width, height).
+    Low-confidence or unrecognized content is retained in unassigned_text;
+    obscured cells are deliberately left empty rather than inferred.
     """
+    width, height = image_size
     positioned = []
-
     for item in ocr_items:
         text = clean_text(str(item.get("text", "")))
         center = box_center(item.get("box"))
-
         if not text or center is None:
             continue
-
-        x, y = center
         positioned.append({
-            "text": text,
-            "x": x,
-            "y": y,
+            "text": text, "x": center[0], "y": center[1],
             "confidence": item.get("confidence"),
         })
+    positioned.sort(key=lambda item: (item["y"], item["x"]))
 
-    # Use the OCR coordinate space. The current aligned output is 1200x1600.
-    # Keep these values explicit so they can be calibrated to the template.
-    width = 1200.0
-    height = 1600.0
-
-    header = {
-        "name": "",
-        "description": "",
-        "stitches": "",
-        "d_no": "",
-        "piece": "",
-        "date": "",
-    }
-
+    header = {"name": "", "description": "", "stitches": "", "d_no": "", "piece": "", "date": ""}
     grid = empty_grid()
-    unassigned = []
+    unassigned: list[dict[str, Any]] = []
+    needle_headings: list[dict[str, Any]] = []
 
     for item in positioned:
-        text = item["text"]
-        x = item["x"]
-        y = item["y"]
-        normalized_x = x / width
-        normalized_y = y / height
+        text, x, y = item["text"], item["x"], item["y"]
+        nx, ny = x / max(width, 1), y / max(height, 1)
+        low = text.lower()
+        norm = _normalise_label(text)
 
-        # Header text: use spatial bands, not OCR return order.
-        if normalized_y < 0.29:
-            if not header["name"] and normalized_y < 0.25:
+        # Label detections sometimes merge with the handwritten value.
+        if "stich" in low or "stitch" in low:
+            value = _field_value(text, r"stitch(?:es)?")
+            if value:
+                header["stitches"] = value
+            continue
+        if "date" in low or re.search(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", text):
+            date = re.search(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", text)
+            if date:
+                header["date"] = date.group(0)
+                continue
+            if "date" in low:
+                continue
+        if "dno" in norm or norm.startswith("dno"):
+            value = _field_value(text, r"d\s*\.?\s*no\s*\.?\s*:")
+            if value:
+                header["d_no"] = value
+            continue
+        if "piece" in low:
+            value = _field_value(text, r"piece")
+            digits = re.search(r"\d+", value or text)
+            if digits:
+                header["piece"] = digits.group(0)
+            continue
+
+        # OCR commonly reads the printed "Needle" as "Nedal".
+        needle = re.search(r"(?:needle|nedal|nedle|need[e1]e)\s*[-:#]?\s*(\d+)", low)
+        if needle:
+            needle_headings.append({"needle": int(needle.group(1)), "x": x, "y": y})
+            continue
+
+        # Typical form regions. Header is arranged spatially to tolerate reading order changes.
+        if ny < 0.27:
+            if nx < 0.45 and not header["name"]:
                 header["name"] = text
             elif not header["description"]:
                 header["description"] = text
             else:
-                unassigned.append(text)
+                unassigned.append({**item, "reason": "header_text"})
             continue
 
-        if normalized_y < 0.38:
-            lower = text.lower()
-
-            if "stich" in lower or "stitch" in lower:
-                continue
-            if "date" in lower:
-                date_match = re.search(
-                    r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}",
-                    text,
-                )
-                header["date"] = (
-                    date_match.group(0) if date_match else ""
-                )
-                continue
-            if "d.no" in lower or "d. no" in lower:
-                continue
-            if "piece" in lower:
-                piece_match = re.search(r"\d+", text)
-                header["piece"] = (
-                    piece_match.group(0) if piece_match else ""
-                )
-                continue
-
-        # Label positions may vary slightly, so use text as well.
-        lower = text.lower()
-
-        if "stich" in lower or "stitch" in lower:
+        # If a label and value were split into separate detections, place plausible free
+        # header values by their y-coordinate and nearest horizontal region.
+        if 0.27 <= ny < 0.36:
+            if nx < 0.32 and not header["d_no"] and not re.search(r"[a-z]", text, re.I):
+                header["d_no"] = text
+            elif 0.30 <= nx <= 0.58 and not header["piece"] and re.search(r"\d", text):
+                header["piece"] = re.search(r"\d+", text).group(0)
+            elif nx > 0.65 and not header["date"] and re.search(r"\d{1,2}[/-]\d{1,2}", text):
+                header["date"] = text
+            else:
+                unassigned.append({**item, "reason": "header_or_label"})
             continue
 
-        if "date" in lower:
-            date_match = re.search(
-                r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}",
-                text,
-            )
-            header["date"] = date_match.group(0) if date_match else ""
-            continue
-
-        if "d.no" in lower or "d. no" in lower:
-            continue
-
-        if "piece" in lower:
-            piece_match = re.search(r"\d+", text)
-            header["piece"] = piece_match.group(0) if piece_match else ""
-            continue
-
-        # Needle headings are labels, not cell values.
-        needle_match = re.search(r"needle\s*[-:]?\s*(\d+)", lower)
-        if needle_match:
-            continue
-
-        # The printed grid begins below the needle headings.
-        # Leave anything outside the grid unassigned for manual review.
-        grid_top = 0.36
-        grid_bottom = 0.94
-        grid_left = 0.10
-        grid_right = 0.90
-
-        if not (
-            grid_top <= normalized_y <= grid_bottom
-            and grid_left <= normalized_x <= grid_right
-        ):
-            unassigned.append(text)
-            continue
-
-        column_width = (grid_right - grid_left) / NEEDLE_COUNT
-        row_height = (grid_bottom - grid_top) / ROWS_PER_NEEDLE
-
-        column = int((normalized_x - grid_left) / column_width)
-        row = int((normalized_y - grid_top) / row_height)
-
-        column = max(0, min(NEEDLE_COUNT - 1, column))
-        row = max(0, min(ROWS_PER_NEEDLE - 1, row))
-
-        # Preserve multiple detections in a cell instead of overwriting.
-        if grid[row][column]:
-            grid[row][column] += " " + text
+        # Six columns by six rows. Use centres rather than OCR return order.
+        grid_left, grid_right = 0.10, 0.90
+        grid_top, grid_bottom = 0.36, 0.94
+        if grid_left <= nx <= grid_right and grid_top <= ny <= grid_bottom:
+            col_w = (grid_right - grid_left) / NEEDLE_COUNT
+            row_h = (grid_bottom - grid_top) / ROWS_PER_NEEDLE
+            col = min(NEEDLE_COUNT - 1, max(0, int((nx - grid_left) / col_w)))
+            row = min(ROWS_PER_NEEDLE - 1, max(0, int((ny - grid_top) / row_h)))
+            grid[row][col] = (grid[row][col] + " " + text).strip()
         else:
-            grid[row][column] = text
+            unassigned.append({**item, "reason": "outside_known_fields"})
 
-    # Do not infer a date format or silently invent missing values.
+    # Use detected heading x-centres to map cell values when all/most headings are present.
+    # Keep fixed template mapping as fallback, since heading detections may be incomplete.
+    if len(needle_headings) >= 4:
+        headings = sorted(needle_headings, key=lambda item: item["x"])
+        centres = [item["x"] for item in headings]
+        # Re-map values by x nearest heading centre, preserving row order.
+        detections = []
+        for item in positioned:
+            text, x, y = item["text"], item["x"], item["y"]
+            if y / max(height, 1) < 0.39:
+                continue
+            low = text.lower()
+            if re.search(r"(?:needle|nedal|nedle|need[e1]e)\s*[-:#]?\s*\d+", low):
+                continue
+            if not (0.36 <= y / max(height, 1) <= 0.94):
+                continue
+            detections.append(item)
+        remapped = empty_grid()
+        for item in detections:
+            col = min(range(len(centres)), key=lambda index: abs(item["x"] - centres[index]))
+            row = min(ROWS_PER_NEEDLE - 1, max(0, int((item["y"] / max(height, 1) - 0.36) / (0.58 / ROWS_PER_NEEDLE))))
+            remapped[row][col] = (remapped[row][col] + " " + item["text"]).strip()
+        # Only replace when there is content to preserve.
+        if any(value for row in remapped for value in row):
+            grid = remapped
+
     return {
         "header": header,
         "needle_columns": [
-            {
-                "needle": needle_index + 1,
-                "values": [
-                    grid[row_index][needle_index]
-                    for row_index in range(ROWS_PER_NEEDLE)
-                ],
-            }
-            for needle_index in range(NEEDLE_COUNT)
+            {"needle": i + 1, "values": [grid[row][i] for row in range(ROWS_PER_NEEDLE)]}
+            for i in range(NEEDLE_COUNT)
         ],
+        "needle_headings": needle_headings,
         "unassigned_text": unassigned,
         "needs_manual_review": True,
     }
