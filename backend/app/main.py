@@ -6,6 +6,7 @@ from app.api.auth import router as auth_router
 from app.core.config import get_settings
 from app.api.image_library import router as image_library_router
 from app.api.table_forms import router as table_forms_router
+from app.api.ocr import router as ocr_router
 
 
 settings = get_settings()
@@ -37,3 +38,4 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(image_library_router)
 app.include_router(table_forms_router)
+app.include_router(ocr_router)

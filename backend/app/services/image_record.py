@@ -11,8 +11,14 @@ from datetime import date, datetime, time, timedelta, timezone
 from app.models.image_record import ImageRecord
 from app.models.user import User
 
+from app.services.image_conversion import (
+    ALLOWED_IMAGE_TYPES,
+    ImageConversionError,
+    convert_image,
+)
 
-MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024
+
+MAX_IMAGE_SIZE_BYTES = 25 * 1024 * 1024
 
 ALLOWED_IMAGE_TYPES = {
     "image/jpeg",
@@ -178,6 +184,7 @@ def sanitize_filename(filename: str | None) -> str:
     return filename[:255]
 
 
+
 def create_image_record(
     db: Session,
     user: User,
@@ -192,41 +199,30 @@ def create_image_record(
         raise ValueError("Text is required")
 
     if len(text) > 1000:
-        raise ValueError(
-            "Text must be 1000 characters or fewer"
-        )
+        raise ValueError("Text must be 1000 characters or fewer")
 
-    if len(image_data) == 0:
+    if not image_data:
         raise ValueError("Image is required")
 
     if len(image_data) > MAX_IMAGE_SIZE_BYTES:
-        raise ValueError(
-            "Image must be 20 MB or smaller"
-        )
+        raise ValueError("Image must be 25 MiB or smaller")
 
-    detected_type = detect_image_type(image_data)
+    # Validate the actual image contents and convert unsupported
+    # OCR/storage formats to JPEG or PNG.
+    try:
+        stored_data, stored_type = convert_image(image_data)
+    except ImageConversionError as exc:
+        raise ValueError(str(exc)) from exc
 
-    if detected_type is None:
-        raise ValueError(
-            "Supported image formats are JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, and AVIF"
-        )
-
-    if content_type not in ALLOWED_IMAGE_TYPES:
-        raise ValueError(
-            "Supported image formats are JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, and AVIF"
-        )
-
-    if content_type != detected_type:
-        raise ValueError(
-            "Image content does not match its declared type"
-        )
+    if len(stored_data) > MAX_IMAGE_SIZE_BYTES:
+        raise ValueError("Stored image must be 25 MiB or smaller")
 
     record = ImageRecord(
         text_content=text,
         original_filename=sanitize_filename(filename),
-        content_type=detected_type,
-        size_bytes=len(image_data),
-        image_data=image_data,
+        content_type=stored_type,
+        size_bytes=len(stored_data),
+        image_data=stored_data,
         created_by_id=user.id,
     )
 

@@ -284,4 +284,14 @@ export const api = {
   getImageRecordImage(recordId: string) {
     return requestBlob(`/api/v1/image-library/${recordId}/image`);
   },
+
+  readImageText(image: File) {
+    const formData = new FormData();
+    formData.append("image", image);
+
+    return request<unknown>("/api/v1/ocr/read", {
+      method: "POST",
+      body: formData,
+    });
+  },
 };

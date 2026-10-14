@@ -9,3 +9,5 @@ pytest
 httpx2
 python-dotenv
 python-multipart
+Pillow
+pillow-heif

@@ -1,3 +1,4 @@
+from email.mime import image
 from uuid import UUID
 from datetime import date
 
@@ -21,16 +22,47 @@ from app.api.dependencies import (
 from app.models.user import User
 from app.schemas.image_record import ImageRecordResponse
 from app.services.image_record import (
+    MAX_IMAGE_SIZE_BYTES,
     create_image_record,
     get_image_record,
     list_image_records,
 )
+
+from app.services.image_record import MAX_IMAGE_SIZE_BYTES
 
 
 router = APIRouter(
     prefix="/api/v1/image-library",
     tags=["image-library"],
 )
+
+async def read_upload_with_limit(image: UploadFile) -> bytes:
+    """Read an upload without ever buffering more than the allowed size."""
+
+    chunks: list[bytes] = []
+    total_size = 0
+    chunk_size = 1024 * 1024  # 1 MiB
+
+    while True:
+        remaining = MAX_IMAGE_SIZE_BYTES - total_size
+
+        # Read at most one byte beyond the remaining allowance.
+        chunk = await image.read(min(chunk_size, remaining + 1))
+
+        if not chunk:
+            break
+
+        total_size += len(chunk)
+
+        if total_size > MAX_IMAGE_SIZE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail="Image must be 25 MiB or smaller.",
+            )
+
+        chunks.append(chunk)
+
+    return b"".join(chunks)
 
 
 @router.post(
@@ -46,7 +78,10 @@ async def create_image(
         require_password_change_complete
     ),
 ):
-    image_data = await image.read()
+    try:
+        image_data = await read_upload_with_limit(image)
+    finally:
+        await image.close()
 
     try:
         record = create_image_record(

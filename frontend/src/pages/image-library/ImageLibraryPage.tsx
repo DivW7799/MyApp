@@ -18,8 +18,11 @@ import { ImageOcrReader } from "../../components/image-ocr/ImageOcrReader";
 
 import { getBrowserPreviewBlob } from "../../utils/image-utils";
 import "./ImageLibraryPage.css";
+import {
+  MAX_IMAGE_SIZE_BYTES,
+  MAX_IMAGE_SIZE_LABEL,
+} from "../../constants/upload-limits";
 
-const MAX_IMAGE_SIZE = 20 * 1024 * 1024;
 const SEARCH_DEBOUNCE_MS = 300;
 
 type ImageTab = "upload" | "view";
@@ -137,11 +140,11 @@ export function ImageLibraryPage() {
       return;
     }
 
-    if (file.size > MAX_IMAGE_SIZE) {
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
       setSelectedFile(null);
       event.target.value = "";
 
-      setErrorMessage("Image must be 20 MB or smaller.");
+      setErrorMessage(`Image must be ${MAX_IMAGE_SIZE_LABEL} or smaller.`);
 
       return;
     }
@@ -311,7 +314,7 @@ export function ImageLibraryPage() {
                 />
 
                 <p className="image-library-field__hint">
-                  {IMAGE_FORMAT_LABEL}. Maximum 20 MB.
+                  {IMAGE_FORMAT_LABEL}. Maximum {MAX_IMAGE_SIZE_LABEL}.
                 </p>
               </div>
 

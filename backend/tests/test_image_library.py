@@ -150,25 +150,15 @@ def test_image_upload_rejects_invalid_type(
     assert response.status_code == 400
 
 
-def test_image_upload_rejects_oversized_file(
-    db,
-):
-    user = create_test_user(
-        db,
-        "oversized_image_user",
-    )
-
+def test_image_upload_rejects_oversized_file(db):
+    user = create_test_user(db, "oversized_image_user")
     login(user.username)
 
-    oversized_data = b"a" * (
-        5 * 1024 * 1024 + 1
-    )
+    oversized_data = b"a" * (25 * 1024 * 1024 + 1)
 
     response = client.post(
         "/api/v1/image-library",
-        data={
-            "text": "large image",
-        },
+        data={"text": "large image"},
         files={
             "image": (
                 "large.png",
@@ -178,7 +168,10 @@ def test_image_upload_rejects_oversized_file(
         },
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 413
+    assert response.json()["detail"] == (
+        "Image must be 25 MiB or smaller."
+    )
 
 
 def test_image_search_is_case_insensitive(
