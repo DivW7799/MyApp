@@ -10,10 +10,10 @@ export const ALLOWED_IMAGE_TYPES = [
 ] as const;
 
 export const IMAGE_ACCEPT_ATTRIBUTE =
-  ".jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff,.heic,.heif,.avif";
+  ".jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff,.heic,.heif,.avif,.pdf";
 
 export const IMAGE_FORMAT_LABEL =
-  "JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, or AVIF";
+  "PDF, JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, or AVIF";
 
 const ALLOWED_IMAGE_EXTENSIONS = [
   ".jpg",
@@ -36,15 +36,15 @@ export function isAllowedImageType(contentType: string): boolean {
 
 export function isAllowedImageFile(file: File): boolean {
   const contentType = file.type.toLowerCase();
+  const filename = file.name.toLowerCase();
 
   if (isAllowedImageType(contentType)) {
     return true;
   }
 
-  const filename = file.name.toLowerCase();
-
-  return ALLOWED_IMAGE_EXTENSIONS.some((extension) =>
-    filename.endsWith(extension),
+  return (
+    filename.endsWith(".pdf") ||
+    ALLOWED_IMAGE_EXTENSIONS.some((extension) => filename.endsWith(extension))
   );
 }
 

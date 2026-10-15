@@ -12,6 +12,7 @@ import { ChangePasswordPage } from "./pages/change-password/ChangePasswordPage";
 import { HomePage } from "./pages/home/HomePage";
 import { LoginPage } from "./pages/login/LoginPage";
 import { ImageLibraryPage } from "./pages/image-library/ImageLibraryPage";
+import { CardEntryPage } from "./pages/card-entry/CardEntryPage";
 
 function App() {
   const { currentUser, isLoading } = useAuth();
@@ -38,6 +39,8 @@ function App() {
         <Route path="/account" element={<EditUserPage />} />
 
         <Route path="/images" element={<ImageLibraryPage />} />
+
+        <Route path="/cards/new" element={<CardEntryPage />} />
 
         <Route
           path="/admin/users/create"

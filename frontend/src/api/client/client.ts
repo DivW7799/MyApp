@@ -168,6 +168,36 @@ export type ImageSearchFilters = {
   toDate?: string;
 };
 
+export type TableFormNeedleRowInput = {
+  row_number: number;
+  needle_1: string;
+  needle_2: string;
+  needle_3: string;
+  needle_4: string;
+  needle_5: string;
+  needle_6: string;
+};
+
+export type CreateTableFormRequest = {
+  party_name: string;
+  stitches: string;
+  d_no: string;
+  piece: string;
+  form_date: string;
+  source_image_record_id?: string | null;
+  needle_rows: TableFormNeedleRowInput[];
+};
+
+export type TableFormRecord = {
+  id: string;
+  party_name: string;
+  stitches: string;
+  d_no: string;
+  piece: string;
+  form_date: string;
+  source_image_record_id: string | null;
+};
+
 export const api = {
   login(data: LoginRequest) {
     return request<CurrentUser>("/api/v1/auth/login", {
@@ -292,6 +322,13 @@ export const api = {
     return request<unknown>("/api/v1/ocr/read", {
       method: "POST",
       body: formData,
+    });
+  },
+
+  createTableForm(data: CreateTableFormRequest) {
+    return request<TableFormRecord>("/api/v1/table-forms", {
+      method: "POST",
+      body: JSON.stringify(data),
     });
   },
 };

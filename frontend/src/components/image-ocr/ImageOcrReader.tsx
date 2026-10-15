@@ -38,14 +38,14 @@ export function ImageOcrReader() {
     if (!isAllowedImageFile(file)) {
       event.target.value = "";
       setErrorMessage(
-        "Supported image formats are JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, and AVIF.",
+        "Supported formats are PDF, JPEG, PNG, WebP, BMP, TIFF, HEIC, HEIF, and AVIF.",
       );
       return;
     }
 
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
       event.target.value = "";
-      setErrorMessage(`Image must be ${MAX_IMAGE_SIZE_LABEL} or smaller.`);
+      setErrorMessage(`File must be ${MAX_IMAGE_SIZE_LABEL} or smaller.`);
       return;
     }
 
@@ -54,13 +54,13 @@ export function ImageOcrReader() {
 
   async function handleReadText() {
     if (!selectedFile) {
-      setErrorMessage("Please select an image first.");
+      setErrorMessage("Please select an image or PDF first.");
       return;
     }
 
     setIsReading(true);
     setErrorMessage("");
-    setStatusMessage("Processing image with local PaddleOCR...");
+    setStatusMessage("Processing document with local PaddleOCR...");
     setResultText("");
 
     try {
@@ -72,7 +72,7 @@ export function ImageOcrReader() {
       if (error instanceof ApiError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage("Unable to process this image. Please try again.");
+        setErrorMessage("Unable to process this document. Please try again.");
       }
 
       setStatusMessage("");
@@ -97,7 +97,7 @@ export function ImageOcrReader() {
       <div className="image-ocr__header">
         <div>
           <p className="image-ocr__eyebrow">LOCAL OCR</p>
-          <h2>Read text from image</h2>
+          <h2>Read text from document</h2>
           <p>
             Extract text and table structure using the local PaddleOCR engine.
           </p>

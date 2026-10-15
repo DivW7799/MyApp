@@ -73,13 +73,7 @@ function ImageIcon() {
         strokeWidth="1.8"
       />
 
-      <circle
-        cx="8.5"
-        cy="9"
-        r="1.4"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
+      <circle cx="8.5" cy="9" r="1.4" stroke="currentColor" strokeWidth="1.8" />
 
       <path
         d="m21 15-4.5-4.5L11 16l-2.5-2.5L3 19"
@@ -102,13 +96,7 @@ function CreateUserIcon() {
         strokeLinecap="round"
       />
 
-      <circle
-        cx="11"
-        cy="8"
-        r="3.25"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
+      <circle cx="11" cy="8" r="3.25" stroke="currentColor" strokeWidth="1.8" />
 
       <path
         d="M18 8.5v6M15 11.5h6"
@@ -123,13 +111,7 @@ function CreateUserIcon() {
 function UsersIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none">
-      <circle
-        cx="9"
-        cy="8"
-        r="3"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
+      <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.8" />
 
       <path
         d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"
@@ -241,6 +223,28 @@ function EditIcon() {
   );
 }
 
+function CardEntryIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect
+        x="4"
+        y="3"
+        width="16"
+        height="18"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M8 8h8M8 12h2m2 0h2m2 0h.01M8 16h2m2 0h2m2 0h.01"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function AppShell() {
   const { currentUser, logout } = useAuth();
 
@@ -280,10 +284,7 @@ export function AppShell() {
     document.addEventListener("mousedown", handleDocumentMouseDown);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleDocumentMouseDown,
-      );
+      document.removeEventListener("mousedown", handleDocumentMouseDown);
     };
   }, [isAccountMenuOpen]);
 
@@ -339,39 +340,23 @@ export function AppShell() {
         </div>
 
         <div className="app-shell-navigation-header">
-          <span className="app-shell-navigation-title">
-            Navigation
-          </span>
+          <span className="app-shell-navigation-title">Navigation</span>
 
           <button
             type="button"
             className="app-shell-collapse-button"
             onClick={() => setIsCollapsed((current) => !current)}
             aria-label={
-              isCollapsed
-                ? "Expand navigation"
-                : "Collapse navigation"
+              isCollapsed ? "Expand navigation" : "Collapse navigation"
             }
-            title={
-              isCollapsed
-                ? "Expand navigation"
-                : "Collapse navigation"
-            }
+            title={isCollapsed ? "Expand navigation" : "Collapse navigation"}
           >
             <CollapseIcon collapsed={isCollapsed} />
           </button>
         </div>
 
-        <nav
-          className="app-shell-navigation"
-          aria-label="Main navigation"
-        >
-          <NavItem
-            to="/"
-            label="Home"
-            end
-            onNavigate={closeMobileNavigation}
-          >
+        <nav className="app-shell-navigation" aria-label="Main navigation">
+          <NavItem to="/" label="Home" end onNavigate={closeMobileNavigation}>
             <HomeIcon />
           </NavItem>
 
@@ -381,6 +366,14 @@ export function AppShell() {
             onNavigate={closeMobileNavigation}
           >
             <ImageIcon />
+          </NavItem>
+
+          <NavItem
+            to="/cards/new"
+            label="Enter card"
+            onNavigate={closeMobileNavigation}
+          >
+            <CardEntryIcon />
           </NavItem>
 
           {currentUser?.account_type === "A" && (
@@ -406,15 +399,9 @@ export function AppShell() {
 
         <div className="app-shell-sidebar-spacer" />
 
-        <div
-          className="app-shell-account"
-          ref={accountMenuRef}
-        >
+        <div className="app-shell-account" ref={accountMenuRef}>
           {isAccountMenuOpen && (
-            <div
-              className="app-shell-account-menu"
-              role="menu"
-            >
+            <div className="app-shell-account-menu" role="menu">
               <NavLink
                 to="/account"
                 className="app-shell-account-menu__item"
@@ -469,9 +456,7 @@ export function AppShell() {
               <strong>{currentUser?.username}</strong>
 
               <small>
-                {currentUser?.account_type === "A"
-                  ? "Administrator"
-                  : "User"}
+                {currentUser?.account_type === "A" ? "Administrator" : "User"}
               </small>
             </span>
           </button>

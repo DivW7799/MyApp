@@ -1,0 +1,338 @@
+.card-entry-page {
+  padding: 36px 28px 48px;
+  animation: card-entry-appear 240ms ease-out both;
+}
+
+.card-entry-page__header {
+  margin-bottom: 24px;
+}
+
+.card-entry-page__eyebrow {
+  margin: 0 0 5px;
+  color: #7183a2;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.card-entry-page__header h1 {
+  margin: 0;
+  color: #0b2347;
+  font-size: clamp(2rem, 3vw, 2.7rem);
+  font-weight: 700;
+}
+
+.card-entry-page__header > div > p:last-child {
+  margin: 8px 0 0;
+  color: #7183a2;
+  line-height: 1.55;
+}
+
+.card-entry-card {
+  margin-bottom: 24px;
+  padding: 28px;
+  border: 1px solid #dfe5ee;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 16px 38px rgba(23, 53, 92, 0.06);
+}
+
+.card-entry-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.card-entry-card__header h2 {
+  margin: 0 0 6px;
+  color: #16345d;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.card-entry-card__header p {
+  margin: 0;
+  color: #7b8eae;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.card-entry-card__step {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #dfe5ee;
+  border-radius: 11px;
+  background: #f3f6fb;
+  color: #4c668c;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.card-entry-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.card-entry-field,
+.card-entry-stitches-date {
+  min-width: 0;
+}
+
+.card-entry-field--party {
+  grid-column: 1 / -1;
+}
+
+.card-entry-field--stitches {
+  grid-column: 1 / -1;
+}
+
+.card-entry-field .form-label {
+  color: #16345d;
+  font-weight: 600;
+}
+
+.card-entry-field .form-control,
+.card-entry-needle-input {
+  min-width: 0;
+  border-color: #d6deea;
+  color: #16345d;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.card-entry-field .form-control:focus,
+.card-entry-needle-input:focus {
+  border-color: #5875d8;
+  box-shadow: 0 0 0 3px rgb(88 117 216 / 12%);
+}
+
+.card-entry-card--table {
+  min-width: 0;
+}
+
+.card-entry-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #dfe5ee;
+  border-radius: 12px;
+  scrollbar-color: #cbd5e4 #f3f6fb;
+}
+
+.card-entry-table {
+  min-width: 700px;
+  margin: 0;
+  vertical-align: middle;
+  --bs-table-bg: #fff;
+  --bs-table-color: #16345d;
+  --bs-table-border-color: #e4e9f1;
+}
+
+.card-entry-table thead th {
+  padding: 15px 12px;
+  border-bottom-width: 1px;
+  background: #f3f6fb;
+  color: #4c668c;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.card-entry-table tbody th,
+.card-entry-table tbody td {
+  padding: 10px 12px;
+}
+
+.card-entry-table tbody tr {
+  transition: background-color 160ms ease;
+}
+
+.card-entry-table tbody tr:hover {
+  --bs-table-bg: #f8fafd;
+}
+
+.card-entry-table__row-label {
+  width: 64px;
+  min-width: 64px;
+  background: #f8fafd !important;
+  color: #4c668c;
+  font-weight: 700;
+  text-align: center;
+}
+
+.card-entry-needle-input {
+  width: 100%;
+  min-width: 76px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-entry-needle-input::-webkit-inner-spin-button,
+.card-entry-needle-input::-webkit-outer-spin-button {
+  margin: 0;
+}
+
+.card-entry-table__hint {
+  margin: 12px 0 0;
+  color: #7b8eae;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.card-entry-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.card-entry-actions .btn {
+  min-height: 42px;
+  padding: 9px 18px;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.card-entry-actions .btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.card-entry-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 130px;
+}
+
+.card-entry-page .alert {
+  margin-bottom: 18px;
+}
+
+.card-entry-stitches-date {
+  display: contents;
+}
+
+.card-entry-stitches-field,
+.card-entry-date-field {
+  min-width: 0;
+}
+
+.card-entry-stitches-field .form-control {
+  max-width: none;
+  width: 100%;
+}
+
+.card-entry-date-field {
+  width: 100%;
+}
+
+@media (max-width: 576px) {
+  .card-entry-stitches-date {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .card-entry-stitches-field .form-control {
+    max-width: 100%;
+  }
+}
+
+@keyframes card-entry-appear {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 700px) {
+  .card-entry-page {
+    padding: 24px 16px 36px;
+  }
+
+  .card-entry-card {
+    padding: 20px;
+  }
+
+  .card-entry-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+  }
+
+  .card-entry-field--party,
+  .card-entry-field--stitches {
+    grid-column: auto;
+  }
+
+  .card-entry-card__header {
+    gap: 12px;
+  }
+
+  .card-entry-table thead th {
+    padding: 12px 10px;
+  }
+
+  .card-entry-table tbody th,
+  .card-entry-table tbody td {
+    padding: 8px;
+  }
+
+  .card-entry-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .card-entry-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-entry-page {
+    animation: none;
+  }
+
+  .card-entry-page *,
+  .card-entry-page *::before,
+  .card-entry-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-entry-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .card-entry-stitches-date {
+    display: contents;
+  }
+
+  .card-entry-stitches-field .form-control {
+    max-width: 100%;
+  }
+}
