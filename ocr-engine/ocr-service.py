@@ -1,4 +1,3 @@
-
 import argparse
 import json
 import logging
@@ -10,6 +9,7 @@ import cv2
 from paddleocr import PaddleOCR
 
 from card_alignment import align_card
+from card_parser import parse_card
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_ROOT = BASE_DIR / "models"
@@ -53,7 +53,9 @@ def serialize_result(result) -> dict:
         data = json.loads(data)
 
     if not isinstance(data, dict):
-        raise TypeError("PaddleOCR returned an unexpected result format.")
+        raise TypeError(
+            "PaddleOCR returned an unexpected result format."
+        )
 
     return data
 
@@ -92,12 +94,44 @@ def extract_text(serialized_results: list[dict]) -> list[dict]:
     return recognized_text
 
 
+def run_ocr(
+    ocr: PaddleOCR,
+    image_path: Path,
+) -> tuple[list[dict], list[dict]]:
+    """Run OCR and return both serialized predictions and extracted text."""
+    predictions = ocr.predict(input=str(image_path))
+
+    serialized_results = [
+        serialize_result(result)
+        for result in predictions
+    ]
+
+    recognized_text = extract_text(serialized_results)
+
+    return serialized_results, recognized_text
+
+
+def parse_image(
+    recognized_text: list[dict],
+    image_width: int,
+    image_height: int,
+) -> dict:
+    """Parse OCR output using the dimensions of the image OCR processed."""
+    return parse_card(
+        recognized_text,
+        image_width=image_width,
+        image_height=image_height,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run local PaddleOCR with optional card alignment."
     )
+
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+
     args = parser.parse_args()
 
     if not args.input.is_file():
@@ -112,6 +146,9 @@ def main() -> None:
         "text": [],
         "text_count": 0,
         "success": False,
+        "image_width": None,
+        "image_height": None,
+        "parsed_card": None,
         "alignment": {
             "attempted": False,
             "applied": False,
@@ -123,13 +160,17 @@ def main() -> None:
     try:
         logger.info("Loading local OCR models...")
 
-        # Keep the existing, working local model configuration.
+        # Preserve the existing local model configuration.
         ocr = PaddleOCR(
             device="cpu",
             text_detection_model_name="PP-OCRv5_server_det",
-            text_detection_model_dir=model_path("PP-OCRv5_server_det"),
+            text_detection_model_dir=model_path(
+                "PP-OCRv5_server_det"
+            ),
             text_recognition_model_name="PP-OCRv5_server_rec",
-            text_recognition_model_dir=model_path("PP-OCRv5_server_rec"),
+            text_recognition_model_dir=model_path(
+                "PP-OCRv5_server_rec"
+            ),
             text_det_limit_side_len=960,
             text_det_limit_type="max",
             text_det_box_thresh=0.5,
@@ -139,8 +180,9 @@ def main() -> None:
             use_textline_orientation=False,
         )
 
-        # Default to the original image. Alignment must never prevent OCR.
+        # Default to the original image. Alignment is optional.
         processing_image = args.input
+
         alignment_info = {
             "attempted": True,
             "applied": False,
@@ -154,7 +196,9 @@ def main() -> None:
             original_image = cv2.imread(str(args.input))
 
             if original_image is None:
-                raise ValueError("OpenCV could not read the input image.")
+                raise ValueError(
+                    "OpenCV could not read the input image."
+                )
 
             alignment = align_card(original_image)
 
@@ -166,7 +210,6 @@ def main() -> None:
             }
 
             if alignment.success:
-                # Use a temporary PNG. Never overwrite the user's upload.
                 with tempfile.TemporaryDirectory(
                     prefix="myapp_ocr_"
                 ) as temp_dir:
@@ -181,6 +224,7 @@ def main() -> None:
                         )
 
                     alignment_info["applied"] = True
+                    processing_image = aligned_path
 
                     logger.info(
                         "Alignment applied (score %.3f).",
@@ -189,22 +233,29 @@ def main() -> None:
 
                     logger.info("Running OCR on the aligned image.")
 
-                    predictions = ocr.predict(
-                        input=str(aligned_path)
+                    image_height, image_width = (
+                        alignment.image.shape[:2]
                     )
 
-                    serialized_results = [
-                        serialize_result(result)
-                        for result in predictions
-                    ]
+                    serialized_results, recognized_text = run_ocr(
+                        ocr,
+                        processing_image,
+                    )
 
-                    recognized_text = extract_text(serialized_results)
+                    parsed_card = parse_image(
+                        recognized_text,
+                        image_width,
+                        image_height,
+                    )
 
                     output = {
                         "results": serialized_results,
                         "text": recognized_text,
                         "text_count": len(recognized_text),
                         "success": True,
+                        "image_width": image_width,
+                        "image_height": image_height,
+                        "parsed_card": parsed_card,
                         "alignment": alignment_info,
                     }
 
@@ -215,10 +266,11 @@ def main() -> None:
                 )
 
         except Exception as alignment_error:
-            # Alignment is optional. Log the problem and try the original.
+            # An alignment failure should not prevent OCR on the original.
             logger.exception(
                 "Alignment failed; falling back to the original image."
             )
+
             alignment_info = {
                 "attempted": True,
                 "applied": False,
@@ -230,24 +282,38 @@ def main() -> None:
                 ),
             }
 
-        # If alignment was not applied, run OCR on the original image.
+        # If alignment did not succeed, OCR the original image.
         if not alignment_info["applied"]:
             logger.info("Running OCR on the original image.")
 
-            predictions = ocr.predict(input=str(args.input))
+            original_image = cv2.imread(str(args.input))
 
-            serialized_results = [
-                serialize_result(result)
-                for result in predictions
-            ]
+            if original_image is None:
+                raise ValueError(
+                    "OpenCV could not read the input image."
+                )
 
-            recognized_text = extract_text(serialized_results)
+            image_height, image_width = original_image.shape[:2]
+
+            serialized_results, recognized_text = run_ocr(
+                ocr,
+                args.input,
+            )
+
+            parsed_card = parse_image(
+                recognized_text,
+                image_width,
+                image_height,
+            )
 
             output = {
                 "results": serialized_results,
                 "text": recognized_text,
                 "text_count": len(recognized_text),
                 "success": True,
+                "image_width": image_width,
+                "image_height": image_height,
+                "parsed_card": parsed_card,
                 "alignment": alignment_info,
             }
 
@@ -264,6 +330,9 @@ def main() -> None:
             "text": [],
             "text_count": 0,
             "success": False,
+            "image_width": None,
+            "image_height": None,
+            "parsed_card": None,
             "alignment": output.get("alignment"),
             "error": f"{type(exc).__name__}: {exc}",
             "traceback": traceback.format_exc(),
@@ -279,7 +348,9 @@ def main() -> None:
         )
 
     if not output["success"]:
-        raise RuntimeError("OCR processing failed; see the OCR logs.")
+        raise RuntimeError(
+            "OCR processing failed; see the OCR logs."
+        )
 
 
 if __name__ == "__main__":

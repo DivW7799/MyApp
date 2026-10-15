@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import argparse
@@ -6,19 +7,19 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import cv2
+from PIL import Image, ImageOps
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
-
-ENGINE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+ENGINE_DIR = PROJECT_ROOT / "ocr-engine"
 OCR_SCRIPT = ENGINE_DIR / "ocr-service.py"
 OCR_PYTHON = ENGINE_DIR / ".venv" / "Scripts" / "python.exe"
 
 
-def get_font():
+def get_font() -> str:
     """Use a Unicode font when available; otherwise use Helvetica."""
     candidates = [
         Path("C:/Windows/Fonts/arial.ttf"),
@@ -39,7 +40,7 @@ def get_font():
 
 
 def run_ocr(image_path: Path, json_path: Path) -> dict:
-    """Run the project's existing PaddleOCR service exactly once."""
+    """Run the existing PaddleOCR service exactly once."""
     if not OCR_PYTHON.is_file():
         raise FileNotFoundError(
             f"OCR Python environment not found: {OCR_PYTHON}"
@@ -74,7 +75,9 @@ def run_ocr(image_path: Path, json_path: Path) -> dict:
         )
 
     if not json_path.is_file():
-        raise RuntimeError("OCR service did not create its JSON output.")
+        raise RuntimeError(
+            "OCR service did not create its JSON output."
+        )
 
     result = json.loads(json_path.read_text(encoding="utf-8"))
 
@@ -86,7 +89,7 @@ def run_ocr(image_path: Path, json_path: Path) -> dict:
     return result
 
 
-def extract_box(item: dict):
+def extract_box(item: dict) -> list[list[float]] | None:
     """Return a four-point PaddleOCR polygon when available."""
     box = item.get("box")
 
@@ -94,7 +97,10 @@ def extract_box(item: dict):
         return None
 
     try:
-        points = [[float(p[0]), float(p[1])] for p in box]
+        points = [
+            [float(point[0]), float(point[1])]
+            for point in box
+        ]
     except (TypeError, ValueError, IndexError):
         return None
 
@@ -110,16 +116,27 @@ def create_searchable_pdf(
     ocr_result: dict,
 ) -> int:
     """
-    Put the image on a PDF page and overlay invisible OCR text.
+    Place the original image on a PDF page and overlay invisible OCR text.
 
-    The image remains visible. The text layer is selectable/searchable.
+    The image remains visible. The invisible text layer is selectable
+    and searchable in compatible PDF readers.
     """
-    image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+    image_path = Path(image_path)
+    output_pdf = Path(output_pdf)
 
-    if image is None:
-        raise ValueError(f"Cannot read image: {image_path}")
+    try:
+        with Image.open(image_path) as source:
+            image = ImageOps.exif_transpose(source).convert("RGB")
+            image.load()
+    except Exception as exc:
+        raise ValueError(
+            f"Cannot read image: {image_path}. Details: {exc}"
+        ) from exc
 
-    image_height, image_width = image.shape[:2]
+    image_width, image_height = image.size
+
+    if image_width <= 0 or image_height <= 0:
+        raise ValueError("The input image has invalid dimensions.")
 
     page_width = 595.276
     page_height = 841.890
@@ -144,7 +161,7 @@ def create_searchable_pdf(
     )
 
     pdf.drawImage(
-        ImageReader(str(image_path)),
+        ImageReader(image),
         offset_x,
         offset_y,
         width=draw_width,
@@ -177,16 +194,21 @@ def create_searchable_pdf(
         if box_width <= 0 or box_height <= 0:
             continue
 
-        # Keep text approximately the same size as its image region.
-        font_size = max(2.0, min(box_height * scale * 0.85, 48.0))
+        # Approximate the OCR text size based on its image bounding box.
+        font_size = max(
+            2.0,
+            min(box_height * scale * 0.85, 48.0),
+        )
 
-        # A searchable text layer should not obscure the image.
-        # Text rendering mode 3 means invisible text.
+        # Rendering mode 3 makes the searchable text invisible.
         text_object = pdf.beginText()
         text_object.setTextRenderMode(3)
         text_object.setFont(font_name, font_size)
 
         pdf_x = offset_x + x_min * scale
+
+        # Image coordinates start at the top; PDF coordinates start
+        # at the bottom.
         pdf_y = offset_y + (image_height - y_max) * scale
 
         text_object.setTextOrigin(pdf_x, pdf_y)
@@ -201,47 +223,65 @@ def create_searchable_pdf(
     return inserted
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Create a searchable PDF from a card image."
     )
+
     parser.add_argument(
         "image",
-        help="Path to a card image, preferably already cropped/straightened",
+        help=(
+            "Path to a card image, preferably already "
+            "cropped and straightened"
+        ),
     )
+
     parser.add_argument(
         "-o",
         "--output",
         default="searchable_card.pdf",
         help="Output PDF path",
     )
+
     args = parser.parse_args()
 
     image_path = Path(args.image).resolve()
     output_pdf = Path(args.output).resolve()
 
     if not image_path.is_file():
-        raise FileNotFoundError(f"Image not found: {image_path}")
+        raise FileNotFoundError(
+            f"Image not found: {image_path}"
+        )
 
     if image_path.suffix.lower() == ".pdf":
-        raise ValueError("Input must be an image, not a PDF.")
+        raise ValueError(
+            "Input must be an image, not a PDF."
+        )
 
     if image_path == output_pdf:
-        raise ValueError("Input image and output PDF must be different files.")
+        raise ValueError(
+            "Input image and output PDF must be different files."
+        )
 
-    with tempfile.TemporaryDirectory(prefix="searchable-pdf-") as temp:
+    with tempfile.TemporaryDirectory(
+        prefix="searchable-pdf-"
+    ) as temp:
         json_path = Path(temp) / "ocr-result.json"
 
         print("Running PaddleOCR...")
         result = run_ocr(image_path, json_path)
 
-        print(f"Recognized text items: {result.get('text_count', 0)}")
+        print(
+            "Recognized text items: "
+            f"{result.get('text_count', 0)}"
+        )
 
         if result.get("alignment", {}).get("applied"):
             print(
                 "WARNING: OCR alignment was applied. "
-                "Check text alignment in the PDF, because OCR coordinates "
-                "may refer to the aligned image rather than the input image."
+                "OCR coordinates may refer to the aligned image "
+                "rather than the image placed in the PDF. "
+                "Verify the searchable text alignment."
             )
 
         count = create_searchable_pdf(
