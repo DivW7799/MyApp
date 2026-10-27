@@ -1,3 +1,9 @@
+from uuid import UUID
+
+from sqlalchemy import select
+
+from app.models.table_form import TableFormRecord
+from app.schemas.table_form import TableFormStatusUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -42,5 +48,54 @@ def create_table_form_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
+
+    return record
+
+@router.get(
+    "",
+    response_model=list[TableFormRecordResponse],
+)
+def list_table_forms_endpoint(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_password_change_complete
+    ),
+):
+    records = db.scalars(
+        select(TableFormRecord).order_by(
+            TableFormRecord.created_at.desc()
+        )
+    ).all()
+
+    return records
+
+
+@router.patch(
+    "/{record_id}/status",
+    response_model=TableFormRecordResponse,
+)
+def update_table_form_status_endpoint(
+    record_id: UUID,
+    payload: TableFormStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_password_change_complete
+    ),
+):
+    record = db.get(TableFormRecord, record_id)
+
+    if record is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Card record not found.",
+        )
+
+    if payload.workflow == "design":
+        record.design_status = payload.status
+    else:
+        record.delivery_status = payload.status
+
+    db.commit()
+    db.refresh(record)
 
     return record

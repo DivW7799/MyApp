@@ -20,6 +20,7 @@ type NeedleRow = {
 
 type CardFormValues = {
   party_name: string;
+  description: string;
   stitches: string;
   d_no: string;
   piece: string;
@@ -56,6 +57,7 @@ function createEmptyRows(): NeedleRow[] {
 function createEmptyForm(): CardFormValues {
   return {
     party_name: "",
+    description: "",
     stitches: "",
     d_no: "",
     piece: "",
@@ -81,7 +83,6 @@ export function CardEntryPage() {
     field: keyof Omit<NeedleRow, "row_number">,
     value: string,
   ) => {
-    // Needle values must be non-negative whole numbers.
     if (value !== "" && !/^\d+$/.test(value)) {
       return;
     }
@@ -114,6 +115,7 @@ export function CardEntryPage() {
 
     const requiredFields: Array<keyof CardFormValues> = [
       "party_name",
+      "description",
       "stitches",
       "d_no",
       "piece",
@@ -150,6 +152,7 @@ export function CardEntryPage() {
     try {
       await api.createTableForm({
         party_name: form.party_name.trim(),
+        description: form.description.trim(),
         stitches: form.stitches.trim(),
         d_no: form.d_no.trim(),
         piece: form.piece.trim(),
@@ -192,7 +195,6 @@ export function CardEntryPage() {
     const valueOf = (field?: { value?: string | number | null }) =>
       field?.value == null ? "" : String(field.value).trim();
 
-    // Avoid silently guessing an ambiguous date such as 12/9/2026.
     const rawDate = valueOf(header.date);
     let parsedDate = "";
 
@@ -216,7 +218,6 @@ export function CardEntryPage() {
         const second = Number(dateMatch[2]);
         const year = Number(dateMatch[3]);
 
-        // Only infer day/month order when one interpretation is impossible.
         let day: number;
         let month: number;
 
@@ -324,6 +325,27 @@ export function CardEntryPage() {
               />
             </div>
 
+            <div className="card-entry-field card-entry-field--description form-field description-field">
+              <label className="form-label" htmlFor="card-description">
+                Description
+              </label>
+              <textarea
+                id="card-description"
+                className="form-control"
+                value={form.description}
+                onChange={(event) =>
+                  updateField("description", event.target.value)
+                }
+                maxLength={512}
+                rows={3}
+                placeholder="Enter description (optional)"
+                disabled={isSubmitting}
+              />
+              <small className="text-muted">
+                {form.description.length}/512 characters
+              </small>
+            </div>
+
             <div className="card-entry-stitches-date">
               <div className="card-entry-field card-entry-stitches-field">
                 <label htmlFor="stitches" className="form-label">
@@ -395,8 +417,8 @@ export function CardEntryPage() {
           </div>
         </section>
 
-        <section className="card-entry-card card-entry-card--table">
-          <div className="card-entry-card__header">
+        <details className="card-entry-card card-entry-card--table card-entry-needle-details">
+          <summary className="card-entry-card__header card-entry-needle-summary">
             <div>
               <h2>Needle values</h2>
               <p>
@@ -405,7 +427,7 @@ export function CardEntryPage() {
               </p>
             </div>
             <span className="card-entry-card__step">02</span>
-          </div>
+          </summary>
 
           <div className="card-entry-table-wrap">
             <table className="table card-entry-table">
@@ -469,7 +491,7 @@ export function CardEntryPage() {
           <p className="card-entry-table__hint">
             All six rows are required. Enter 0 for cells with no value.
           </p>
-        </section>
+        </details>
 
         {errorMessage && (
           <div className="alert alert-danger" role="alert">

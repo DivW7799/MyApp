@@ -1,9 +1,9 @@
-
 import re
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import Annotated
 from uuid import UUID
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -60,6 +60,7 @@ class TableFormCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     party_name: Annotated[str, Field(min_length=1, max_length=255)]
+    description: Annotated[str, Field(max_length=512)] = ""
     stitches: Annotated[str, Field(min_length=1, max_length=1000)]
     d_no: Annotated[str, Field(min_length=1, max_length=255)]
     piece: Annotated[str, Field(min_length=1, max_length=255)]
@@ -80,6 +81,11 @@ class TableFormCreate(BaseModel):
             raise ValueError("This field cannot be blank.")
         return value
 
+    @field_validator("description")
+    @classmethod
+    def normalize_description(cls, value: str) -> str:
+        return value.strip()
+
     @model_validator(mode="after")
     def validate_six_distinct_rows(self):
         row_numbers = [row.row_number for row in self.needle_rows]
@@ -97,8 +103,18 @@ class TableFormRecordResponse(BaseModel):
 
     id: UUID
     party_name: str
+    description: str
     stitches: str
     d_no: str
     piece: str
     form_date: date
     source_image_record_id: UUID | None
+    design_status: Literal["y", "n"]
+    delivery_status: Literal["y", "n"]
+
+
+class TableFormStatusUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    workflow: Literal["design", "delivery"]
+    status: Literal["y", "n"]

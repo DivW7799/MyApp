@@ -1,4 +1,3 @@
-
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
@@ -35,9 +34,12 @@ class TableFormRecord(Base):
         String(255),
         nullable=False,
     )
+    description: Mapped[str] = mapped_column(
+        String(512),
+        nullable=False,
+        server_default=text(""),
+    )
 
-    # Keep OCR-derived text as text until field-specific
-    # validation rules are confirmed.
     stitches: Mapped[str] = mapped_column(
         Text,
         nullable=False,
@@ -46,6 +48,20 @@ class TableFormRecord(Base):
     d_no: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
+    )
+
+    design_status: Mapped[str] = mapped_column(
+        String(1),
+        nullable=False,
+        default="n",
+        server_default=text("'n'"),
+    )
+
+    delivery_status: Mapped[str] = mapped_column(
+        String(1),
+        nullable=False,
+        default="n",
+        server_default=text("'n'"),
     )
 
     piece: Mapped[str] = mapped_column(
@@ -78,6 +94,17 @@ class TableFormRecord(Base):
         server_default=func.now(),
     )
 
+    __table_args__ = (
+        CheckConstraint(
+            "design_status IN ('y', 'n')",
+            name="ck_table_form_records_design_status",
+        ),
+        CheckConstraint(
+            "delivery_status IN ('y', 'n')",
+            name="ck_table_form_records_delivery_status",
+        ),
+    )
+
 
 class TableFormNeedleRow(Base):
     __tablename__ = "table_form_needle_rows"
@@ -100,8 +127,6 @@ class TableFormNeedleRow(Base):
         nullable=False,
     )
 
-    # Reserved for the future Cloth colour feature.
-    # Store a colour code such as #E53935, or NULL.
     cloth: Mapped[str | None] = mapped_column(
         String(7),
         nullable=True,

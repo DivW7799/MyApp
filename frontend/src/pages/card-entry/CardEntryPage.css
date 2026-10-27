@@ -240,6 +240,36 @@
   width: 100%;
 }
 
+.card-entry-needle-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-entry-needle-summary::-webkit-details-marker {
+  display: none;
+}
+
+.card-entry-needle-summary::marker {
+  content: "";
+}
+
+.card-entry-needle-details .card-entry-needle-summary {
+  margin-bottom: 0;
+}
+
+.card-entry-needle-details[open] .card-entry-needle-summary {
+  margin-bottom: 24px;
+}
+
+.card-entry-needle-summary .card-entry-card__step {
+  flex: 0 0 auto;
+}
+
 @media (max-width: 576px) {
   .card-entry-stitches-date {
     grid-template-columns: minmax(0, 1fr);
@@ -265,27 +295,65 @@
 
 @media (max-width: 700px) {
   .card-entry-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     padding: 24px 16px 36px;
+    overflow-x: clip;
   }
 
   .card-entry-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     padding: 20px;
   }
 
   .card-entry-details {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
     align-items: start;
   }
 
+  .card-entry-field,
+  .card-entry-stitches-field,
+  .card-entry-date-field,
+  .description-field {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
   .card-entry-field--party,
-  .card-entry-field--stitches {
-    grid-column: auto;
+  .card-entry-field--stitches,
+  .description-field {
+    grid-column: 1 / -1;
+  }
+
+  .card-entry-stitches-date {
+    display: contents;
+  }
+
+  .card-entry-field .form-control,
+  .card-entry-stitches-field .form-control,
+  .card-entry-date-field .form-control {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .card-entry-card__header {
     gap: 12px;
+  }
+
+  .card-entry-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
   }
 
   .card-entry-table thead th {
@@ -319,20 +387,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-@media (max-width: 576px) {
-  .card-entry-details {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-
-  .card-entry-stitches-date {
-    display: contents;
-  }
-
-  .card-entry-stitches-field .form-control {
-    max-width: 100%;
   }
 }

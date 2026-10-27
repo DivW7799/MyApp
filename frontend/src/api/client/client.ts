@@ -37,9 +37,7 @@ async function parseApiError(response: Response): Promise<string> {
         .filter((msg): msg is string => Boolean(msg))
         .join(" ");
     }
-  } catch {
-    // Keep the generic error when the response isn't JSON.
-  }
+  } catch {}
 
   return message;
 }
@@ -180,6 +178,7 @@ export type TableFormNeedleRowInput = {
 
 export type CreateTableFormRequest = {
   party_name: string;
+  description: string;
   stitches: string;
   d_no: string;
   piece: string;
@@ -188,14 +187,20 @@ export type CreateTableFormRequest = {
   needle_rows: TableFormNeedleRowInput[];
 };
 
+export type CardStatus = "y" | "n";
+export type CardWorkflow = "design" | "delivery";
+
 export type TableFormRecord = {
   id: string;
   party_name: string;
+  description: string;
   stitches: string;
   d_no: string;
   piece: string;
   form_date: string;
   source_image_record_id: string | null;
+  design_status: CardStatus;
+  delivery_status: CardStatus;
 };
 
 export const api = {
@@ -330,6 +335,21 @@ export const api = {
     return request<TableFormRecord>("/api/v1/table-forms", {
       method: "POST",
       body: JSON.stringify(data),
+    });
+  },
+
+  getTableForms() {
+    return request<TableFormRecord[]>("/api/v1/table-forms");
+  },
+
+  updateTableFormStatus(
+    recordId: string,
+    workflow: CardWorkflow,
+    status: CardStatus,
+  ) {
+    return request<TableFormRecord>(`/api/v1/table-forms/${recordId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ workflow, status }),
     });
   },
 };

@@ -12,7 +12,7 @@ import {
 } from "../../constants/upload-limits";
 import "./CardEntryOcr.css";
 
-const OCR_TIMEOUT_MS = 25_000;
+const OCR_TIMEOUT_MS = 90_000;
 
 type ParsedField = {
   value?: string | number | null;
@@ -107,7 +107,7 @@ export function CardEntryOcr({ onApply, disabled = false }: Props) {
     } catch (error: unknown) {
       if (timedOut) {
         setErrorMessage(
-          "OCR couldn’t read this card within 25 seconds. Please try again.",
+          "OCR couldn’t read this card within 90 seconds. Please try again.",
         );
       } else if (error instanceof ApiError) {
         setErrorMessage(
@@ -220,7 +220,7 @@ export function CardEntryOcr({ onApply, disabled = false }: Props) {
               <div className="card-ocr__progress">
                 <span />
               </div>
-              <small>Maximum processing time: 25 seconds</small>
+              <small>Maximum processing time: 90 seconds</small>
             </div>
           </div>
         )}

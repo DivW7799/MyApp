@@ -205,3 +205,121 @@ def test_table_form_rolls_back_parent_when_needle_insert_fails(db):
 
     assert parent_count == 0
     assert child_count == 0
+
+
+def test_authenticated_user_can_list_table_forms(db):
+    user = create_test_user(db, "table_form_list_user")
+    login(user.username)
+
+    create_response = client.post(
+        "/api/v1/table-forms",
+        json=valid_payload(),
+    )
+    assert create_response.status_code == 201
+
+    response = client.get("/api/v1/table-forms")
+
+    assert response.status_code == 200
+    assert len(response.json()) >= 1
+
+    record = next(
+        item
+        for item in response.json()
+        if item["id"] == create_response.json()["id"]
+    )
+
+    assert record["party_name"] == "Example Party"
+    assert record["design_status"] == "n"
+    assert record["delivery_status"] == "n"
+
+
+def test_design_status_update_does_not_change_delivery(db):
+    user = create_test_user(db, "table_form_design_status_user")
+    login(user.username)
+
+    create_response = client.post(
+        "/api/v1/table-forms",
+        json=valid_payload(),
+    )
+    assert create_response.status_code == 201
+    record_id = create_response.json()["id"]
+
+    response = client.patch(
+        f"/api/v1/table-forms/{record_id}/status",
+        json={"workflow": "design", "status": "y"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["design_status"] == "y"
+    assert response.json()["delivery_status"] == "n"
+
+
+def test_delivery_status_update_does_not_change_design(db):
+    user = create_test_user(db, "table_form_delivery_status_user")
+    login(user.username)
+
+    create_response = client.post(
+        "/api/v1/table-forms",
+        json=valid_payload(),
+    )
+    assert create_response.status_code == 201
+    record_id = create_response.json()["id"]
+
+    response = client.patch(
+        f"/api/v1/table-forms/{record_id}/status",
+        json={"workflow": "delivery", "status": "y"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["design_status"] == "n"
+    assert response.json()["delivery_status"] == "y"
+
+
+def test_status_update_rejects_invalid_status(db):
+    user = create_test_user(db, "table_form_invalid_status_user")
+    login(user.username)
+
+    create_response = client.post(
+        "/api/v1/table-forms",
+        json=valid_payload(),
+    )
+    assert create_response.status_code == 201
+    record_id = create_response.json()["id"]
+
+    response = client.patch(
+        f"/api/v1/table-forms/{record_id}/status",
+        json={"workflow": "design", "status": "completed"},
+    )
+
+    assert response.status_code == 422
+
+
+def test_status_update_rejects_invalid_workflow(db):
+    user = create_test_user(db, "table_form_invalid_workflow_user")
+    login(user.username)
+
+    create_response = client.post(
+        "/api/v1/table-forms",
+        json=valid_payload(),
+    )
+    assert create_response.status_code == 201
+    record_id = create_response.json()["id"]
+
+    response = client.patch(
+        f"/api/v1/table-forms/{record_id}/status",
+        json={"workflow": "packing", "status": "y"},
+    )
+
+    assert response.status_code == 422
+
+
+def test_status_update_returns_404_for_missing_record(db):
+    user = create_test_user(db, "table_form_missing_status_user")
+    login(user.username)
+
+    response = client.patch(
+        f"/api/v1/table-forms/{uuid4()}/status",
+        json={"workflow": "design", "status": "y"},
+    )
+
+    assert response.status_code == 404

@@ -30,6 +30,7 @@ def create_table_form(
         # Create the parent record.
         record = TableFormRecord(
             party_name=payload.party_name,
+            description=payload.description,
             stitches=payload.stitches,
             d_no=payload.d_no,
             piece=payload.piece,

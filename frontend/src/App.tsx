@@ -13,6 +13,7 @@ import { HomePage } from "./pages/home/HomePage";
 import { LoginPage } from "./pages/login/LoginPage";
 import { ImageLibraryPage } from "./pages/image-library/ImageLibraryPage";
 import { CardEntryPage } from "./pages/card-entry/CardEntryPage";
+import { CardsPage } from "./pages/cards/CardsPage";
 
 function App() {
   const { currentUser, isLoading } = useAuth();
@@ -41,6 +42,8 @@ function App() {
         <Route path="/images" element={<ImageLibraryPage />} />
 
         <Route path="/cards/new" element={<CardEntryPage />} />
+
+        <Route path="/cards" element={<CardsPage />} />
 
         <Route
           path="/admin/users/create"
