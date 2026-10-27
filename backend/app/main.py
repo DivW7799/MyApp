@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
 from app.api.admin import router as admin_router
 from app.api.auth import router as auth_router
 from app.core.config import get_settings
@@ -40,3 +43,16 @@ app.include_router(admin_router)
 app.include_router(image_library_router)
 app.include_router(table_forms_router)
 app.include_router(ocr_router)
+
+FRONTEND_DIST = (
+    Path(__file__).resolve().parents[2]
+    / "frontend"
+    / "dist"
+)
+
+if FRONTEND_DIST.is_dir():
+    app.mount(
+        "/",
+        StaticFiles(directory=FRONTEND_DIST, html=True),
+        name="frontend",
+    )

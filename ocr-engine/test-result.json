@@ -1,0 +1,1441 @@
+{
+  "results": [
+    {
+      "res": {
+        "input_path": "C:\\Users\\Div\\AppData\\Local\\Temp\\myapp_ocr_2wp3hdrn\\aligned.png",
+        "page_index": null,
+        "model_settings": {
+          "use_doc_preprocessor": false,
+          "use_textline_orientation": false
+        },
+        "dt_polys": [
+          [
+            [
+              254,
+              295
+            ],
+            [
+              438,
+              295
+            ],
+            [
+              438,
+              367
+            ],
+            [
+              254,
+              367
+            ]
+          ],
+          [
+            [
+              115,
+              376
+            ],
+            [
+              321,
+              380
+            ],
+            [
+              320,
+              422
+            ],
+            [
+              114,
+              418
+            ]
+          ],
+          [
+            [
+              612,
+              372
+            ],
+            [
+              863,
+              368
+            ],
+            [
+              865,
+              440
+            ],
+            [
+              613,
+              444
+            ]
+          ],
+          [
+            [
+              114,
+              493
+            ],
+            [
+              237,
+              497
+            ],
+            [
+              236,
+              539
+            ],
+            [
+              112,
+              535
+            ]
+          ],
+          [
+            [
+              469,
+              493
+            ],
+            [
+              676,
+              499
+            ],
+            [
+              673,
+              569
+            ],
+            [
+              466,
+              563
+            ]
+          ],
+          [
+            [
+              763,
+              500
+            ],
+            [
+              1105,
+              505
+            ],
+            [
+              1104,
+              557
+            ],
+            [
+              762,
+              551
+            ]
+          ],
+          [
+            [
+              262,
+              583
+            ],
+            [
+              390,
+              583
+            ],
+            [
+              390,
+              620
+            ],
+            [
+              262,
+              620
+            ]
+          ],
+          [
+            [
+              404,
+              583
+            ],
+            [
+              537,
+              583
+            ],
+            [
+              537,
+              622
+            ],
+            [
+              404,
+              622
+            ]
+          ],
+          [
+            [
+              547,
+              582
+            ],
+            [
+              678,
+              582
+            ],
+            [
+              678,
+              623
+            ],
+            [
+              547,
+              623
+            ]
+          ],
+          [
+            [
+              689,
+              582
+            ],
+            [
+              822,
+              582
+            ],
+            [
+              822,
+              623
+            ],
+            [
+              689,
+              623
+            ]
+          ],
+          [
+            [
+              834,
+              582
+            ],
+            [
+              970,
+              582
+            ],
+            [
+              970,
+              623
+            ],
+            [
+              834,
+              623
+            ]
+          ],
+          [
+            [
+              980,
+              580
+            ],
+            [
+              1113,
+              580
+            ],
+            [
+              1113,
+              622
+            ],
+            [
+              980,
+              622
+            ]
+          ],
+          [
+            [
+              290,
+              668
+            ],
+            [
+              373,
+              668
+            ],
+            [
+              373,
+              733
+            ],
+            [
+              290,
+              733
+            ]
+          ]
+        ],
+        "text_det_params": {
+          "limit_side_len": 960,
+          "limit_type": "max",
+          "thresh": 0.2,
+          "max_side_limit": 4000,
+          "box_thresh": 0.5,
+          "unclip_ratio": 1.5
+        },
+        "text_type": "general",
+        "textline_orientation_angles": [
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1
+        ],
+        "text_rec_score_thresh": 0.0,
+        "return_word_box": false,
+        "rec_texts": [
+          "PAQIS",
+          "STICHES:",
+          "with Blo.",
+          "D.No.:",
+          "Piece62",
+          "Date:12/912026",
+          "Nedal-1",
+          "Nedal-2",
+          "Nedal-3",
+          "Nedal-4",
+          "Nedal-5",
+          "Nedal-6",
+          "62"
+        ],
+        "rec_scores": [
+          0.8928532600402832,
+          0.9461982846260071,
+          0.7465571165084839,
+          0.8974048495292664,
+          0.9814391732215881,
+          0.8817240595817566,
+          0.9892109632492065,
+          0.9922617673873901,
+          0.9934858083724976,
+          0.9944996237754822,
+          0.9933823347091675,
+          0.9882019758224487,
+          0.9532711505889893
+        ],
+        "rec_polys": [
+          [
+            [
+              254,
+              295
+            ],
+            [
+              438,
+              295
+            ],
+            [
+              438,
+              367
+            ],
+            [
+              254,
+              367
+            ]
+          ],
+          [
+            [
+              115,
+              376
+            ],
+            [
+              321,
+              380
+            ],
+            [
+              320,
+              422
+            ],
+            [
+              114,
+              418
+            ]
+          ],
+          [
+            [
+              612,
+              372
+            ],
+            [
+              863,
+              368
+            ],
+            [
+              865,
+              440
+            ],
+            [
+              613,
+              444
+            ]
+          ],
+          [
+            [
+              114,
+              493
+            ],
+            [
+              237,
+              497
+            ],
+            [
+              236,
+              539
+            ],
+            [
+              112,
+              535
+            ]
+          ],
+          [
+            [
+              469,
+              493
+            ],
+            [
+              676,
+              499
+            ],
+            [
+              673,
+              569
+            ],
+            [
+              466,
+              563
+            ]
+          ],
+          [
+            [
+              763,
+              500
+            ],
+            [
+              1105,
+              505
+            ],
+            [
+              1104,
+              557
+            ],
+            [
+              762,
+              551
+            ]
+          ],
+          [
+            [
+              262,
+              583
+            ],
+            [
+              390,
+              583
+            ],
+            [
+              390,
+              620
+            ],
+            [
+              262,
+              620
+            ]
+          ],
+          [
+            [
+              404,
+              583
+            ],
+            [
+              537,
+              583
+            ],
+            [
+              537,
+              622
+            ],
+            [
+              404,
+              622
+            ]
+          ],
+          [
+            [
+              547,
+              582
+            ],
+            [
+              678,
+              582
+            ],
+            [
+              678,
+              623
+            ],
+            [
+              547,
+              623
+            ]
+          ],
+          [
+            [
+              689,
+              582
+            ],
+            [
+              822,
+              582
+            ],
+            [
+              822,
+              623
+            ],
+            [
+              689,
+              623
+            ]
+          ],
+          [
+            [
+              834,
+              582
+            ],
+            [
+              970,
+              582
+            ],
+            [
+              970,
+              623
+            ],
+            [
+              834,
+              623
+            ]
+          ],
+          [
+            [
+              980,
+              580
+            ],
+            [
+              1113,
+              580
+            ],
+            [
+              1113,
+              622
+            ],
+            [
+              980,
+              622
+            ]
+          ],
+          [
+            [
+              290,
+              668
+            ],
+            [
+              373,
+              668
+            ],
+            [
+              373,
+              733
+            ],
+            [
+              290,
+              733
+            ]
+          ]
+        ],
+        "rec_boxes": [
+          [
+            254,
+            295,
+            438,
+            367
+          ],
+          [
+            114,
+            376,
+            321,
+            422
+          ],
+          [
+            612,
+            368,
+            865,
+            444
+          ],
+          [
+            112,
+            493,
+            237,
+            539
+          ],
+          [
+            466,
+            493,
+            676,
+            569
+          ],
+          [
+            762,
+            500,
+            1105,
+            557
+          ],
+          [
+            262,
+            583,
+            390,
+            620
+          ],
+          [
+            404,
+            583,
+            537,
+            622
+          ],
+          [
+            547,
+            582,
+            678,
+            623
+          ],
+          [
+            689,
+            582,
+            822,
+            623
+          ],
+          [
+            834,
+            582,
+            970,
+            623
+          ],
+          [
+            980,
+            580,
+            1113,
+            622
+          ],
+          [
+            290,
+            668,
+            373,
+            733
+          ]
+        ]
+      }
+    }
+  ],
+  "text": [
+    {
+      "text": "PAQIS",
+      "confidence": 0.8928532600402832,
+      "box": [
+        [
+          254,
+          295
+        ],
+        [
+          438,
+          295
+        ],
+        [
+          438,
+          367
+        ],
+        [
+          254,
+          367
+        ]
+      ]
+    },
+    {
+      "text": "STICHES:",
+      "confidence": 0.9461982846260071,
+      "box": [
+        [
+          115,
+          376
+        ],
+        [
+          321,
+          380
+        ],
+        [
+          320,
+          422
+        ],
+        [
+          114,
+          418
+        ]
+      ]
+    },
+    {
+      "text": "with Blo.",
+      "confidence": 0.7465571165084839,
+      "box": [
+        [
+          612,
+          372
+        ],
+        [
+          863,
+          368
+        ],
+        [
+          865,
+          440
+        ],
+        [
+          613,
+          444
+        ]
+      ]
+    },
+    {
+      "text": "D.No.:",
+      "confidence": 0.8974048495292664,
+      "box": [
+        [
+          114,
+          493
+        ],
+        [
+          237,
+          497
+        ],
+        [
+          236,
+          539
+        ],
+        [
+          112,
+          535
+        ]
+      ]
+    },
+    {
+      "text": "Piece62",
+      "confidence": 0.9814391732215881,
+      "box": [
+        [
+          469,
+          493
+        ],
+        [
+          676,
+          499
+        ],
+        [
+          673,
+          569
+        ],
+        [
+          466,
+          563
+        ]
+      ]
+    },
+    {
+      "text": "Date:12/912026",
+      "confidence": 0.8817240595817566,
+      "box": [
+        [
+          763,
+          500
+        ],
+        [
+          1105,
+          505
+        ],
+        [
+          1104,
+          557
+        ],
+        [
+          762,
+          551
+        ]
+      ]
+    },
+    {
+      "text": "Nedal-1",
+      "confidence": 0.9892109632492065,
+      "box": [
+        [
+          262,
+          583
+        ],
+        [
+          390,
+          583
+        ],
+        [
+          390,
+          620
+        ],
+        [
+          262,
+          620
+        ]
+      ]
+    },
+    {
+      "text": "Nedal-2",
+      "confidence": 0.9922617673873901,
+      "box": [
+        [
+          404,
+          583
+        ],
+        [
+          537,
+          583
+        ],
+        [
+          537,
+          622
+        ],
+        [
+          404,
+          622
+        ]
+      ]
+    },
+    {
+      "text": "Nedal-3",
+      "confidence": 0.9934858083724976,
+      "box": [
+        [
+          547,
+          582
+        ],
+        [
+          678,
+          582
+        ],
+        [
+          678,
+          623
+        ],
+        [
+          547,
+          623
+        ]
+      ]
+    },
+    {
+      "text": "Nedal-4",
+      "confidence": 0.9944996237754822,
+      "box": [
+        [
+          689,
+          582
+        ],
+        [
+          822,
+          582
+        ],
+        [
+          822,
+          623
+        ],
+        [
+          689,
+          623
+        ]
+      ]
+    },
+    {
+      "text": "Nedal-5",
+      "confidence": 0.9933823347091675,
+      "box": [
+        [
+          834,
+          582
+        ],
+        [
+          970,
+          582
+        ],
+        [
+          970,
+          623
+        ],
+        [
+          834,
+          623
+        ]
+      ]
+    },
+    {
+      "text": "Nedal-6",
+      "confidence": 0.9882019758224487,
+      "box": [
+        [
+          980,
+          580
+        ],
+        [
+          1113,
+          580
+        ],
+        [
+          1113,
+          622
+        ],
+        [
+          980,
+          622
+        ]
+      ]
+    },
+    {
+      "text": "62",
+      "confidence": 0.9532711505889893,
+      "box": [
+        [
+          290,
+          668
+        ],
+        [
+          373,
+          668
+        ],
+        [
+          373,
+          733
+        ],
+        [
+          290,
+          733
+        ]
+      ]
+    }
+  ],
+  "text_count": 13,
+  "success": true,
+  "image_width": 1200,
+  "image_height": 1600,
+  "parsed_card": {
+    "header": {
+      "stitches": {
+        "value": "PAQIS",
+        "raw_text": "PAQIS",
+        "confidence": 0.8928532600402832,
+        "box": [
+          254.0,
+          295.0,
+          438.0,
+          367.0
+        ],
+        "needs_review": true,
+        "review_reasons": [
+          "Value associated with a separate label by position"
+        ]
+      },
+      "d_no": {
+        "value": "",
+        "raw_text": "",
+        "confidence": null,
+        "box": null,
+        "needs_review": false,
+        "review_reasons": []
+      },
+      "piece": {
+        "value": "62",
+        "raw_text": "Piece62",
+        "confidence": 0.9814391732215881,
+        "box": [
+          466.0,
+          493.0,
+          676.0,
+          569.0
+        ],
+        "needs_review": true,
+        "review_reasons": [
+          "Label and value were detected in the same OCR box"
+        ]
+      },
+      "date": {
+        "value": "12/912026",
+        "raw_text": "Date:12/912026",
+        "confidence": 0.8817240595817566,
+        "box": [
+          762.0,
+          500.0,
+          1105.0,
+          557.0
+        ],
+        "needs_review": true,
+        "review_reasons": [
+          "Label and value were detected in the same OCR box"
+        ]
+      }
+    },
+    "grid": {
+      "colors": [
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        }
+      ],
+      "nedal_1": [
+        {
+          "value": "62",
+          "raw_text": "62",
+          "confidence": 0.9532711505889893,
+          "box": [
+            290.0,
+            668.0,
+            373.0,
+            733.0
+          ],
+          "needs_review": false,
+          "review_reasons": []
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        }
+      ],
+      "nedal_2": [
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        }
+      ],
+      "nedal_3": [
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        }
+      ],
+      "nedal_4": [
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        }
+      ],
+      "nedal_5": [
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        }
+      ],
+      "nedal_6": [
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        },
+        {
+          "value": "",
+          "raw_text": "",
+          "confidence": null,
+          "box": null,
+          "needs_review": true,
+          "review_reasons": [
+            "No OCR value detected"
+          ]
+        }
+      ]
+    },
+    "unassigned_text": [
+      {
+        "text": "with Blo.",
+        "confidence": 0.7465571165084839,
+        "box": [
+          612.0,
+          368.0,
+          865.0,
+          444.0
+        ],
+        "reason": "No confidently matched header field or grid cell"
+      },
+      {
+        "text": "62",
+        "confidence": 0.9532711505889893,
+        "box": [
+          290.0,
+          668.0,
+          373.0,
+          733.0
+        ],
+        "reason": "No confidently matched header field or grid cell"
+      }
+    ],
+    "review_required": true
+  },
+  "alignment": {
+    "attempted": true,
+    "applied": true,
+    "confidence": 0.9207339286804199,
+    "message": "Rectangle candidate detected. Verify the output visually before using it for OCR."
+  }
+}

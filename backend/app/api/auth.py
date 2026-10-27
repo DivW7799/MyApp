@@ -190,8 +190,8 @@ def complete_password_change(
         key=settings.session_cookie_name,
         value=raw_token,
         httponly=True,
-        secure=settings.environment != "development",
-        samesite="lax",
+        secure=settings.session_cookie_secure,
+        samesite=settings.session_cookie_samesite,
         max_age=settings.session_expire_hours * 60 * 60,
         path="/",
     )
@@ -234,8 +234,8 @@ def change_password(
         key=settings.session_cookie_name,
         value=raw_token,
         httponly=True,
-        secure=settings.environment != "development",
-        samesite="lax",
+        secure=settings.session_cookie_secure,
+        samesite=settings.session_cookie_samesite,
         max_age=settings.session_expire_hours * 60 * 60,
         path="/",
     )

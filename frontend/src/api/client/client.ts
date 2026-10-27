@@ -1,6 +1,9 @@
 // const API_BASE_URL = "http://localhost:8000";
 // const API_BASE_URL = "http://192.168.0.100:8000";
-const API_BASE_URL = `http://${window.location.hostname}:8000`;
+//const API_BASE_URL = `http://${window.location.hostname}:8000`;
+const API_BASE_URL = import.meta.env.DEV
+  ? `http://${window.location.hostname}:8000`
+  : window.location.origin;
 
 type ApiValidationError = {
   type?: string;
