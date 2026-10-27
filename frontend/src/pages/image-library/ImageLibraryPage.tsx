@@ -14,7 +14,6 @@ import {
 } from "../../constants/image-formats";
 
 import { DatePicker } from "../../components/date-picker/DatePicker";
-import { ImageOcrReader } from "../../components/image-ocr/ImageOcrReader";
 
 import { getBrowserPreviewBlob } from "../../utils/image-utils";
 import "./ImageLibraryPage.css";
@@ -342,7 +341,6 @@ export function ImageLibraryPage() {
             </form>
           </section>
 
-          <ImageOcrReader />
         </>
       ) : (
         <section className="image-library-view" role="tabpanel">

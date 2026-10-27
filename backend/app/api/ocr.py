@@ -30,7 +30,7 @@ OCR_ROOT = PROJECT_ROOT / "ocr-engine"
 OCR_PYTHON = OCR_ROOT / ".venv" / "Scripts" / "python.exe"
 OCR_SCRIPT = OCR_ROOT / "ocr-service.py"
 
-OCR_TIMEOUT_SECONDS = 180
+OCR_TIMEOUT_SECONDS = 25
 
 
 async def read_bounded_upload(image: UploadFile) -> bytes:

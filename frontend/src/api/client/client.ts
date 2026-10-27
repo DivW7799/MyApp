@@ -315,13 +315,14 @@ export const api = {
     return requestBlob(`/api/v1/image-library/${recordId}/image`);
   },
 
-  readImageText(image: File) {
+  readImageText(image: File, signal?: AbortSignal) {
     const formData = new FormData();
     formData.append("image", image);
 
     return request<unknown>("/api/v1/ocr/read", {
       method: "POST",
       body: formData,
+      signal,
     });
   },
 

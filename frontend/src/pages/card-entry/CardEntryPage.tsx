@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { ApiError, api } from "../../api/client/client";
 import { DatePicker } from "../../components/date-picker/DatePicker";
+import { CardEntryOcr } from "../../components/card-entry-ocr/CardEntryOcr";
 import "./CardEntryPage.css";
 
 const NEEDLE_COUNT = 6;
@@ -178,6 +179,106 @@ export function CardEntryPage() {
     }
   };
 
+  const applyOcrResult = (card: {
+    header?: {
+      stitches?: { value?: string | number | null };
+      d_no?: { value?: string | number | null };
+      piece?: { value?: string | number | null };
+      date?: { value?: string | number | null };
+    };
+    grid?: Record<string, Array<{ value?: string | number | null }>>;
+  }) => {
+    const header = card.header ?? {};
+    const valueOf = (field?: { value?: string | number | null }) =>
+      field?.value == null ? "" : String(field.value).trim();
+
+    // Avoid silently guessing an ambiguous date such as 12/9/2026.
+    const rawDate = valueOf(header.date);
+    let parsedDate = "";
+
+    const isoMatch = rawDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (isoMatch) {
+      const [, year, month, day] = isoMatch;
+      const candidate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      const check = new Date(`${candidate}T00:00:00`);
+
+      if (
+        !Number.isNaN(check.getTime()) &&
+        check.toISOString().slice(0, 10) === candidate
+      ) {
+        parsedDate = candidate;
+      }
+    } else {
+      const dateMatch = rawDate.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+
+      if (dateMatch) {
+        const first = Number(dateMatch[1]);
+        const second = Number(dateMatch[2]);
+        const year = Number(dateMatch[3]);
+
+        // Only infer day/month order when one interpretation is impossible.
+        let day: number;
+        let month: number;
+
+        if (first > 12 && second <= 12) {
+          day = first;
+          month = second;
+        } else if (second > 12 && first <= 12) {
+          month = first;
+          day = second;
+        } else {
+          day = 0;
+          month = 0;
+        }
+
+        if (day && month) {
+          const candidate = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const check = new Date(`${candidate}T00:00:00`);
+
+          if (
+            !Number.isNaN(check.getTime()) &&
+            check.toISOString().slice(0, 10) === candidate
+          ) {
+            parsedDate = candidate;
+          }
+        }
+      }
+    }
+
+    setForm((current) => ({
+      ...current,
+      stitches: valueOf(header.stitches) || current.stitches,
+      d_no: valueOf(header.d_no) || current.d_no,
+      piece: valueOf(header.piece) || current.piece,
+      form_date: parsedDate || current.form_date,
+    }));
+
+    setRows((current) =>
+      current.map((row, rowIndex) => {
+        const next = { ...row };
+
+        for (let needleIndex = 1; needleIndex <= 6; needleIndex++) {
+          const detected = card.grid?.[`nedal_${needleIndex}`]?.[rowIndex];
+          const detectedValue = valueOf(detected);
+
+          // These inputs accept whole numbers only.
+          if (/^\d+$/.test(detectedValue)) {
+            next[
+              `needle_${needleIndex}` as keyof Omit<NeedleRow, "row_number">
+            ] = detectedValue;
+          }
+        }
+
+        return next;
+      }),
+    );
+
+    setErrorMessage("");
+    setSuccessMessage(
+      "Card read successfully. Check the fields before saving.",
+    );
+  };
+
   return (
     <main className="card-entry-page">
       <header className="card-entry-page__header">
@@ -189,6 +290,8 @@ export function CardEntryPage() {
           </p>
         </div>
       </header>
+
+      <CardEntryOcr onApply={applyOcrResult} disabled={isSubmitting} />
 
       <form onSubmit={handleSubmit}>
         <section className="card-entry-card">
