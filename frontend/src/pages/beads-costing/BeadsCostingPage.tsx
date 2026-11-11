@@ -548,6 +548,13 @@ export function BeadsCostingPage() {
               <li><span>4 mm</span><strong>30,000 pcs</strong></li>
             </ul>
           </article>
+          <article className="beads-costing__subcard">
+            <h3>Other worksheet references</h3>
+            <ul className="beads-costing__reference-list">
+              <li><span>PAL · Rate</span><strong>1,800</strong></li>
+              <li><span>NANG</span><strong>150,000</strong></li>
+            </ul>
+          </article>
         </div>
       </section>
 
