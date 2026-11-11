@@ -1,0 +1,366 @@
+.beads-costing {
+  --bc-ink: #172033;
+  --bc-muted: #64748b;
+  --bc-line: #e2e8f0;
+  --bc-panel: #f8fafc;
+  --bc-accent: #2563eb;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 28px clamp(16px, 3vw, 40px) 48px;
+  color: var(--bc-ink);
+}
+
+.beads-costing * { box-sizing: border-box; }
+
+.beads-costing__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.beads-costing__eyebrow {
+  margin: 0 0 7px;
+  color: var(--bc-accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.beads-costing__header h1 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.15;
+  font-weight: 750;
+  letter-spacing: -.035em;
+}
+
+.beads-costing__subtitle {
+  max-width: 760px;
+  margin: 10px 0 0;
+  color: var(--bc-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.beads-costing__reset {
+  flex-shrink: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #fff;
+  color: #334155;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.beads-costing__reset:hover { background: #f1f5f9; }
+
+.beads-costing__summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.beads-costing__summary-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 126px;
+  padding: 17px 18px;
+  border: 1px solid var(--bc-line);
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 3%);
+}
+
+.beads-costing__summary-card > span {
+  color: var(--bc-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.beads-costing__summary-card strong {
+  margin: 9px 0 5px;
+  font-size: clamp(24px, 2.3vw, 32px);
+  line-height: 1;
+  font-weight: 750;
+  letter-spacing: -.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.beads-costing__summary-card small {
+  margin-top: auto;
+  color: var(--bc-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.beads-costing__summary-card--final {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.beads-costing__summary-card--final > span { color: #1d4ed8; }
+.beads-costing__summary-card--final strong { color: #1d4ed8; }
+
+.beads-costing__section {
+  margin-top: 22px;
+  padding: clamp(16px, 2.2vw, 24px);
+  border: 1px solid var(--bc-line);
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 3%);
+}
+
+.beads-costing__section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 17px;
+}
+
+.beads-costing__section-heading .beads-costing__eyebrow { margin-bottom: 5px; }
+
+.beads-costing__section-heading h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -.02em;
+}
+
+.beads-costing__section-description {
+  max-width: 900px;
+  margin: 7px 0 0;
+  color: var(--bc-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.beads-costing__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--bc-line);
+  border-radius: 10px;
+}
+
+.beads-costing__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.beads-costing__table th,
+.beads-costing__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf1f5;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.beads-costing__table thead th {
+  background: var(--bc-panel);
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.beads-costing__table tbody th {
+  color: #334155;
+  font-weight: 650;
+}
+
+.beads-costing__table tbody tr:last-child th,
+.beads-costing__table tbody tr:last-child td { border-bottom: 1px solid #edf1f5; }
+
+.beads-costing__table tfoot th,
+.beads-costing__table tfoot td {
+  background: #f8fafc;
+  font-weight: 750;
+  border-bottom: 0;
+}
+
+.beads-costing__numeric { text-align: right !important; }
+.beads-costing__computed { color: #1d4ed8; font-weight: 700; }
+
+.beads-costing__editable-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 52px;
+  max-width: 150px;
+  padding: 4px 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #1e293b;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  cursor: text;
+}
+
+.beads-costing__editable-value:hover,
+.beads-costing__editable-value:focus-visible {
+  border-color: #93c5fd;
+  outline: none;
+  background: #eff6ff;
+}
+
+.beads-costing__cell-input {
+  width: 100px;
+  min-width: 68px;
+  max-width: 130px;
+  padding: 5px 7px;
+  border: 1px solid var(--bc-accent);
+  border-radius: 6px;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  outline: 2px solid rgb(37 99 235 / 12%);
+}
+
+.beads-costing__bead-grid,
+.beads-costing__sequence-grid,
+.beads-costing__reference-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.beads-costing__subcard {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--bc-line);
+  border-radius: 11px;
+  background: #fff;
+}
+
+.beads-costing__subcard-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--bc-line);
+  background: #fbfdff;
+}
+
+.beads-costing__subcard h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.beads-costing__head-editor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--bc-muted);
+  font-size: 11px;
+}
+
+.beads-costing__head-editor .beads-costing__editable-value { color: var(--bc-ink); }
+
+.beads-costing__table--compact { font-size: 12px; }
+.beads-costing__table--compact th,
+.beads-costing__table--compact td { padding: 8px 10px; }
+.beads-costing__table--compact .beads-costing__editable-value { min-width: 42px; padding: 3px 5px; }
+
+.beads-costing__total-strip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 14px;
+  padding: 13px 15px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  font-size: 13px;
+}
+
+.beads-costing__total-strip > span { margin-right: auto; font-weight: 700; }
+.beads-costing__total-strip strong { color: #1d4ed8; font-size: 20px; font-variant-numeric: tabular-nums; }
+
+.beads-costing__sequence-rates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.beads-costing__rate-card {
+  padding: 15px;
+  border: 1px solid var(--bc-line);
+  border-radius: 11px;
+  background: #f8fafc;
+}
+
+.beads-costing__rate-card h3 { margin: 0 0 12px; font-size: 14px; font-weight: 750; }
+.beads-costing__rate-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.beads-costing__rate-fields label { display: flex; flex-direction: column; gap: 5px; color: var(--bc-muted); font-size: 11px; font-weight: 650; }
+.beads-costing__rate-fields .beads-costing__editable-value { align-self: flex-start; min-width: 80px; background: #fff; border-color: var(--bc-line); }
+.beads-costing__rate-result { display: flex; justify-content: space-between; gap: 12px; margin-top: 13px; padding-top: 12px; border-top: 1px solid var(--bc-line); font-size: 12px; }
+.beads-costing__rate-result span { color: var(--bc-muted); }
+.beads-costing__rate-result strong { font-size: 17px; font-variant-numeric: tabular-nums; color: #1d4ed8; }
+
+.beads-costing__final-table-wrap { max-width: 780px; border: 1px solid var(--bc-line); border-radius: 10px; overflow: hidden; }
+.beads-costing__final-table-wrap .beads-costing__table th,
+.beads-costing__final-table-wrap .beads-costing__table td { padding: 12px 15px; }
+.beads-costing__final-table-wrap .beads-costing__table th { font-weight: 650; }
+.beads-costing__final-table-wrap .beads-costing__table td { width: 180px; }
+.beads-costing__subtotal th,
+.beads-costing__subtotal td { background: #f8fafc; font-weight: 800 !important; }
+.beads-costing__grand-total th,
+.beads-costing__grand-total td { background: #eff6ff; color: #1d4ed8; font-size: 16px; font-weight: 800 !important; border-bottom: 0 !important; }
+
+.beads-costing__reference-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+.beads-costing__reference-grid > .beads-costing__subcard { padding: 15px; }
+.beads-costing__reference-grid h3 { margin-bottom: 10px; }
+.beads-costing__reference-list { list-style: none; padding: 0; margin: 0; }
+.beads-costing__reference-list li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid #edf1f5; font-size: 12px; }
+.beads-costing__reference-list li:last-child { border-bottom: 0; }
+.beads-costing__reference-list span { color: #475569; }
+.beads-costing__reference-list strong { text-align: right; font-variant-numeric: tabular-nums; }
+
+.beads-costing__footnote {
+  margin: 16px 2px 0;
+  color: var(--bc-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1050px) {
+  .beads-costing__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .beads-costing__reference-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .beads-costing { padding: 20px 12px 32px; }
+  .beads-costing__header { flex-direction: column; }
+  .beads-costing__reset { align-self: flex-start; }
+  .beads-costing__summary { gap: 8px; }
+  .beads-costing__summary-card { min-height: 112px; padding: 13px; }
+  .beads-costing__bead-grid,
+  .beads-costing__sequence-grid,
+  .beads-costing__sequence-rates,
+  .beads-costing__reference-grid { grid-template-columns: minmax(0, 1fr); }
+  .beads-costing__section { padding: 14px 10px; }
+  .beads-costing__section-heading h2 { font-size: 18px; }
+  .beads-costing__total-strip { flex-wrap: wrap; }
+  .beads-costing__total-strip > span { flex-basis: 100%; }
+  .beads-costing__rate-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
