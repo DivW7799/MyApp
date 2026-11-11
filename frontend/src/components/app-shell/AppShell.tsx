@@ -245,6 +245,16 @@ function CardEntryIcon() {
   );
 }
 
+
+function CalculatorIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M8 7h8v3H8zM8 14h1m3 0h1m3 0h.01M8 17h1m3 0h1m3 0h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function CardsIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none">
