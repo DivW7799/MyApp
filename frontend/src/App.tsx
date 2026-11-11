@@ -14,6 +14,7 @@ import { LoginPage } from "./pages/login/LoginPage";
 import { ImageLibraryPage } from "./pages/image-library/ImageLibraryPage";
 import { CardEntryPage } from "./pages/card-entry/CardEntryPage";
 import { CardsPage } from "./pages/cards/CardsPage";
+import { BeadsCostingPage } from "./pages/beads-costing/BeadsCostingPage";
 
 function App() {
   const { currentUser, isLoading } = useAuth();
@@ -44,6 +45,8 @@ function App() {
         <Route path="/cards/new" element={<CardEntryPage />} />
 
         <Route path="/cards" element={<CardsPage />} />
+
+        <Route path="/calculators/beads-costing" element={<BeadsCostingPage />} />
 
         <Route
           path="/admin/users/create"
